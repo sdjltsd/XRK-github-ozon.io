@@ -233,11 +233,22 @@
                 <span class="result-value" id="settlementPrice">-</span>
             </div>
         </div>
+        
+        <div class="results-section" style="margin-top: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <div class="section-title" style="margin: 0;">历史记录</div>
+                <button onclick="clearHistory()" style="padding: 5px 10px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">清空历史</button>
+            </div>
+            
+            <div id="historyList" style="max-height: 300px; overflow-y: auto;">
+                <div style="text-align: center; color: #999; padding: 20px;">暂无历史记录</div>
+            </div>
+        </div>
     </div>
     
     <script>
         // 汇率：1 卢布 = 0.08 人民币（可根据实际情况调整）
-        const EXCHANGE_RATE = 0.08;
+        const EXCHANGE_RATE = 0.088671;
         
         // 运费计算公式
         function calculateShippingFee(logistics, weight) {
@@ -291,6 +302,113 @@
             const actualProfit = settlementPrice - costPrice;
             // 实际利润率 = 实际利润 / 成本价
             return costPrice > 0 ? actualProfit / costPrice : 0;
+        }
+        
+        // 保存历史记录
+        function saveHistory(costPrice, weight, logistics, competitorPrice, settingIndex, settingPrice, targetProfitRate, minProfit, results) {
+            // 获取历史记录
+            let history = JSON.parse(localStorage.getItem('ozonCalculatorHistory') || '[]');
+            
+            // 创建历史记录项
+            const historyItem = {
+                id: Date.now(),
+                timestamp: new Date().toLocaleString(),
+                inputs: {
+                    costPrice,
+                    weight,
+                    logistics,
+                    competitorPrice,
+                    settingIndex,
+                    settingPrice,
+                    targetProfitRate,
+                    minProfit
+                },
+                results
+            };
+            
+            // 添加到历史记录开头
+            history.unshift(historyItem);
+            
+            // 限制历史记录数量为10条
+            if (history.length > 10) {
+                history = history.slice(0, 10);
+            }
+            
+            // 保存到localStorage
+            localStorage.setItem('ozonCalculatorHistory', JSON.stringify(history));
+            
+            // 更新历史记录显示
+            displayHistory();
+        }
+        
+        // 显示历史记录
+        function displayHistory() {
+            const history = JSON.parse(localStorage.getItem('ozonCalculatorHistory') || '[]');
+            const historyList = document.getElementById('historyList');
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">暂无历史记录</div>';
+                return;
+            }
+            
+            let html = '';
+            history.forEach(item => {
+                html += `
+                    <div onclick="fillFormWithHistory(${JSON.stringify(item.inputs).replace(/"/g, '&quot;')})" style="border: 1px solid #ddd; border-radius: 4px; margin-bottom: 10px; padding: 10px; cursor: pointer; transition: background-color 0.2s;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <div style="font-size: 12px; color: #999;">${item.timestamp}</div>
+                            <button onclick="event.stopPropagation(); deleteHistoryItem(${item.id})" style="padding: 2px 8px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 10px;">删除</button>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 5px; font-size: 12px;">
+                            <div><strong>成本价:</strong> ${item.inputs.costPrice.toFixed(2)} CNY</div>
+                            <div><strong>克重:</strong> ${item.inputs.weight} g</div>
+                            <div><strong>同行价:</strong> ${item.inputs.competitorPrice.toFixed(2)} RUB</div>
+                            <div><strong>设置售价:</strong> ${item.inputs.settingPrice.toFixed(2)} CNY</div>
+                            <div><strong>实际利润:</strong> ${item.results.actualProfit.toFixed(2)} CNY</div>
+                            <div><strong>实际利润率:</strong> ${(item.results.actualProfitRate * 100).toFixed(2)}%</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            historyList.innerHTML = html;
+        }
+        
+        // 清空历史记录
+        function clearHistory() {
+            if (confirm('确定要清空历史记录吗？')) {
+                localStorage.removeItem('ozonCalculatorHistory');
+                displayHistory();
+            }
+        }
+        
+        // 删除单个历史记录项
+        function deleteHistoryItem(id) {
+            if (confirm('确定要删除这条历史记录吗？')) {
+                let history = JSON.parse(localStorage.getItem('ozonCalculatorHistory') || '[]');
+                // 过滤掉指定ID的记录
+                history = history.filter(item => item.id !== id);
+                // 保存过滤后的历史记录
+                localStorage.setItem('ozonCalculatorHistory', JSON.stringify(history));
+                // 更新显示
+                displayHistory();
+            }
+        }
+        
+        // 将历史记录填充到表单
+        function fillFormWithHistory(inputs) {
+            // 填充表单输入
+            document.getElementById('costPrice').value = inputs.costPrice;
+            document.getElementById('weight').value = inputs.weight;
+            document.getElementById('logistics').value = inputs.logistics;
+            document.getElementById('competitorPrice').value = inputs.competitorPrice;
+            document.getElementById('settingIndex').value = inputs.settingIndex;
+            document.getElementById('settingPrice').value = inputs.settingPrice;
+            document.getElementById('targetProfitRate').value = inputs.targetProfitRate;
+            document.getElementById('minProfit').value = inputs.minProfit;
+            
+            // 滚动到表单顶部，方便用户查看
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
         // 主计算函数
@@ -359,7 +477,31 @@
             document.getElementById('profit30Rate').textContent = '30.00';
             document.getElementById('targetProfitRateDisplay').textContent = targetProfitRate.toFixed(2);
             document.getElementById('minProfitRate').textContent = (minProfitRate * 100).toFixed(2);
+            
+            // 保存历史记录
+            const results = {
+                convertedPrice,
+                recommendedPrice,
+                competitorIndex,
+                shippingFee,
+                settlementPrice,
+                actualProfit,
+                actualProfitRate,
+                profit20Price,
+                profit30Price,
+                targetProfitPrice,
+                minProfitPrice,
+                recommendedProfitRate,
+                minProfitRate
+            };
+            
+            saveHistory(costPrice, weight, logistics, competitorPrice, settingIndex, settingPrice, targetProfitRate, minProfit, results);
         }
+        
+        // 页面加载时显示历史记录
+        window.onload = function() {
+            displayHistory();
+        };
     </script>
 </body>
 </html>
