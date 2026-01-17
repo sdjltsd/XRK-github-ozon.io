@@ -170,6 +170,16 @@
                 </div>
                 
                 <div class="form-group">
+                    <label for="sourceDate">货源日期</label>
+                    <input type="date" id="sourceDate" placeholder="请选择货源日期">
+                </div>
+                
+                <div class="form-group">
+                    <label for="validityPeriod">保质期 (月)</label>
+                    <input type="number" id="validityPeriod" step="1" min="1" placeholder="请输入保质期">
+                </div>
+                
+                <div class="form-group">
                     <label for="targetProfitRate">目标利润率 (%)</label>
                     <input type="number" id="targetProfitRate" step="1" min="1" max="100" value="30" placeholder="请输入目标利润率">
                     
@@ -216,6 +226,11 @@
                     <div class="result-row">
                         <span class="result-label">京东同行利润率 (%):</span>
                         <span class="result-value" id="jdProfitRate">-</span>
+                    </div>
+                    
+                    <div class="result-row">
+                        <span class="result-label">过期日期:</span>
+                        <span class="result-value" id="expiryDate">-</span>
                     </div>
                     
                     <div class="profit-30-section">
@@ -274,7 +289,7 @@
         }
         
         // 保存历史记录
-        function saveHistory(costPrice, shippingFee, sellingPrice, jdPrice, targetProfitRate, results) {
+        function saveHistory(costPrice, shippingFee, sellingPrice, jdPrice, targetProfitRate, sourceDate, validityPeriod, results) {
             // 获取历史记录
             let history = JSON.parse(localStorage.getItem('buyerCalculatorHistory') || '[]');
             
@@ -287,7 +302,9 @@
                     shippingFee,
                     sellingPrice,
                     jdPrice,
-                    targetProfitRate
+                    targetProfitRate,
+                    sourceDate,
+                    validityPeriod
                 },
                 results
             };
@@ -330,6 +347,9 @@
                             <div><strong>运费:</strong> ${item.inputs.shippingFee.toFixed(2)} CNY</div>
                             <div><strong>设置售价:</strong> ${item.inputs.sellingPrice.toFixed(2)} CNY</div>
                             <div><strong>京东同行价:</strong> ${item.inputs.jdPrice.toFixed(2)} CNY</div>
+                            <div><strong>货源日期:</strong> ${item.inputs.sourceDate || '-'}</div>
+                            <div><strong>保质期:</strong> ${item.inputs.validityPeriod || '-'} 月</div>
+                            <div><strong>过期日期:</strong> ${item.results.expiryDate || '-'}</div>
                             <div><strong>利润:</strong> ${item.results.profit.toFixed(2)} CNY</div>
                             <div><strong>利润率:</strong> ${(item.results.profitRate * 100).toFixed(2)}%</div>
                         </div>
@@ -369,6 +389,8 @@
             document.getElementById('sellingPrice').value = inputs.sellingPrice;
             document.getElementById('jdPrice').value = inputs.jdPrice;
             document.getElementById('targetProfitRate').value = inputs.targetProfitRate;
+            document.getElementById('sourceDate').value = inputs.sourceDate || '';
+            document.getElementById('validityPeriod').value = inputs.validityPeriod || '';
             
             // 滚动到表单顶部，方便用户查看
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -382,6 +404,8 @@
             const sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
             const jdPrice = parseFloat(document.getElementById('jdPrice').value) || 0;
             const targetProfitRate = parseFloat(document.getElementById('targetProfitRate').value) || 30;
+            const sourceDate = document.getElementById('sourceDate').value;
+            const validityPeriod = parseFloat(document.getElementById('validityPeriod').value) || 0;
             
             // 计算结算金额
             const settlementPrice = calculateSettlementPrice(sellingPrice, shippingFee);
@@ -406,6 +430,14 @@
             const profit30Price = calculateTargetPrice(costPrice, shippingFee, 0.3);
             const customTargetPrice = calculateTargetPrice(costPrice, shippingFee, targetProfitRate / 100);
             
+            // 计算过期日期
+            let expiryDate = '-';
+            if (sourceDate && validityPeriod > 0) {
+                const date = new Date(sourceDate);
+                date.setMonth(date.getMonth() + validityPeriod);
+                expiryDate = date.toISOString().split('T')[0];
+            }
+            
             // 保存历史记录
             const results = {
                 settlementPrice,
@@ -414,10 +446,11 @@
                 jdProfitRate,
                 profit20Price,
                 profit30Price,
-                customTargetPrice
+                customTargetPrice,
+                expiryDate
             };
             
-            saveHistory(costPrice, shippingFee, sellingPrice, jdPrice, targetProfitRate, results);
+            saveHistory(costPrice, shippingFee, sellingPrice, jdPrice, targetProfitRate, sourceDate, validityPeriod, results);
             
             // 显示保存成功提示
             alert('记录保存成功！');
@@ -431,6 +464,8 @@
             const sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
             const jdPrice = parseFloat(document.getElementById('jdPrice').value) || 0;
             const targetProfitRate = parseFloat(document.getElementById('targetProfitRate').value) || 30;
+            const sourceDate = document.getElementById('sourceDate').value;
+            const validityPeriod = parseFloat(document.getElementById('validityPeriod').value) || 0;
             
             // 计算结算金额
             const settlementPrice = calculateSettlementPrice(sellingPrice, shippingFee);
@@ -455,6 +490,14 @@
             const profit30Price = calculateTargetPrice(costPrice, shippingFee, 0.3);
             const customTargetPrice = calculateTargetPrice(costPrice, shippingFee, targetProfitRate / 100);
             
+            // 计算过期时间
+            let expiryDate = '-';
+            if (sourceDate && validityPeriod > 0) {
+                const date = new Date(sourceDate);
+                date.setMonth(date.getMonth() + validityPeriod);
+                expiryDate = date.toISOString().split('T')[0];
+            }
+            
             // 显示结果
             document.getElementById('settlementPrice').textContent = settlementPrice.toFixed(2);
             document.getElementById('profit').textContent = profit.toFixed(2);
@@ -464,6 +507,7 @@
             document.getElementById('profit20Price').textContent = profit20Price.toFixed(2);
             document.getElementById('profit30Price').textContent = profit30Price.toFixed(2);
             document.getElementById('targetProfitPrice').textContent = customTargetPrice.toFixed(2);
+            document.getElementById('expiryDate').textContent = expiryDate;
         }
         
         // 切换历史记录的显示/隐藏
