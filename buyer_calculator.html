@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>买手成本计算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .content-wrapper {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .form-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .results-section {
+            flex: 1;
+            min-width: 300px;
+            margin-top: 0;
+        }
+        
+        .results-section:last-child {
+            margin-top: 30px;
+        }
+        
+        .results-wrapper {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .results-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        
+        .result-label {
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .result-value {
+            color: #333;
+        }
+        
+        .calculate-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .calculate-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .profit-30-section {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e3f2fd;
+            border-radius: 4px;
+            border-left: 4px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>买手成本计算器</h1>
+        
+        <div class="content-wrapper">
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="costPrice">成本价 (CNY)</label>
+                    <input type="number" id="costPrice" step="0.01" placeholder="请输入成本价">
+                </div>
+                
+                <div class="form-group">
+                    <label for="shippingFee">运费 (CNY)</label>
+                    <input type="number" id="shippingFee" step="0.01" value="14" placeholder="请输入运费">
+                </div>
+                
+                <div class="form-group">
+                    <label for="sellingPrice">设置售卖价 (CNY)</label>
+                    <input type="number" id="sellingPrice" step="0.01" placeholder="请输入设置售卖价" style="border-color: #2196F3; box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);">
+                </div>
+                
+                <div class="form-group">
+                    <label for="jdPrice">京东同行售卖价 (CNY)</label>
+                    <input type="number" id="jdPrice" step="0.01" placeholder="请输入京东同行售卖价">
+                </div>
+                
+                <div class="form-group">
+                    <label for="targetProfitRate">目标利润率 (%)</label>
+                    <input type="number" id="targetProfitRate" step="1" min="1" max="100" value="30" placeholder="请输入目标利润率">
+                    
+                    <div style="margin-top: 10px; padding: 10px; background-color: #f9f9f9; border-radius: 4px;">
+                        <h4 style="margin-bottom: 10px; color: #333;">推荐售价</h4>
+                        <div style="margin-bottom: 5px;">
+                            <span style="font-weight: bold;">20%利润:</span>
+                            <span id="profit20Price" style="margin-left: 10px;">-</span> CNY
+                        </div>
+                        <div style="margin-bottom: 5px;">
+                            <span style="font-weight: bold;">30%利润:</span>
+                            <span id="profit30Price" style="margin-left: 10px;">-</span> CNY
+                        </div>
+                        <div style="margin-bottom: 5px;">
+                            <span style="font-weight: bold;">目标利润:</span>
+                            <span id="targetProfitPrice" style="margin-left: 10px;">-</span> CNY
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="calculate-btn" onclick="calculate()">计算</button>
+                <button class="calculate-btn" style="margin-top: 10px; background-color: #2196F3;" onclick="saveCurrentResult()">保存记录</button>
+            </div>
+            
+            <div class="results-wrapper">
+                <div class="results-section">
+                    <div class="section-title">计算结果</div>
+                    
+                    <div class="result-row">
+                        <span class="result-label">结算金额 (CNY):</span>
+                        <span class="result-value" id="settlementPrice">-</span>
+                    </div>
+                    
+                    <div class="result-row">
+                        <span class="result-label">利润 (CNY):</span>
+                        <span class="result-value" id="profit">-</span>
+                    </div>
+                    
+                    <div class="result-row">
+                        <span class="result-label">利润率 (%):</span>
+                        <span class="result-value" id="profitRate">-</span>
+                    </div>
+                    
+                    <div class="result-row">
+                        <span class="result-label">京东同行利润率 (%):</span>
+                        <span class="result-value" id="jdProfitRate">-</span>
+                    </div>
+                    
+                    <div class="profit-30-section">
+                        <h4 style="margin-bottom: 10px; color: #1976d2;">目标利润率计算</h4>
+                        <div style="margin-bottom: 5px;">
+                            <span style="font-weight: bold;">当利润率达到30%时，售价需要设置为:</span>
+                            <span id="targetPrice30" style="margin-left: 10px;">-</span> CNY
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="results-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div class="section-title" style="margin: 0;">历史记录</div>
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="toggleHistory()" style="padding: 5px 10px; background-color: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">收起</button>
+                            <button onclick="clearHistory()" style="padding: 5px 10px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">清空历史</button>
+                        </div>
+                    </div>
+                    
+                    <div id="historyList" style="max-height: 300px; overflow-y: auto;">
+                        <div style="text-align: center; color: #999; padding: 20px;">暂无历史记录</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 计算结算金额
+        function calculateSettlementPrice(sellingPrice, shippingFee) {
+            // 结算金额=设置售卖价-设置售卖价*0.05-设置售卖价*0.01-运费
+            return sellingPrice - sellingPrice * 0.05 - sellingPrice * 0.01 - shippingFee;
+        }
+        
+        // 计算利润
+        function calculateProfit(settlementPrice, costPrice) {
+            // 利润=结算金额-成本价
+            return settlementPrice - costPrice;
+        }
+        
+        // 计算利润率
+        function calculateProfitRate(profit, costPrice) {
+            // 利润率=利润/成本价
+            return costPrice > 0 ? profit / costPrice : 0;
+        }
+        
+        // 计算当利润率达到30%时的售价
+        function calculateTargetPrice(costPrice, shippingFee, targetProfitRate) {
+            // 推导公式：
+            // 利润率 = (结算金额 - 成本价) / 成本价 = r
+            // 结算金额 = P - 0.05P - 0.01P - 运费 = 0.94P - 运费
+            // 代入得：(0.94P - 运费 - 成本价) / 成本价 = r
+            // 解得：P = (成本价 × (1 + r) + 运费) / 0.94
+            return (costPrice * (1 + targetProfitRate) + shippingFee) / 0.94;
+        }
+        
+        // 保存历史记录
+        function saveHistory(costPrice, shippingFee, sellingPrice, jdPrice, targetProfitRate, results) {
+            // 获取历史记录
+            let history = JSON.parse(localStorage.getItem('buyerCalculatorHistory') || '[]');
+            
+            // 创建历史记录项
+            const historyItem = {
+                id: Date.now(),
+                timestamp: new Date().toLocaleString(),
+                inputs: {
+                    costPrice,
+                    shippingFee,
+                    sellingPrice,
+                    jdPrice,
+                    targetProfitRate
+                },
+                results
+            };
+            
+            // 添加到历史记录开头
+            history.unshift(historyItem);
+            
+            // 限制历史记录数量为5条
+            if (history.length > 5) {
+                history = history.slice(0, 5);
+            }
+            
+            // 保存到localStorage
+            localStorage.setItem('buyerCalculatorHistory', JSON.stringify(history));
+            
+            // 更新历史记录显示
+            displayHistory();
+        }
+        
+        // 显示历史记录
+        function displayHistory() {
+            const history = JSON.parse(localStorage.getItem('buyerCalculatorHistory') || '[]');
+            const historyList = document.getElementById('historyList');
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<div style="text-align: center; color: #999; padding: 20px;">暂无历史记录</div>';
+                return;
+            }
+            
+            let html = '';
+            history.forEach(item => {
+                html += `
+                    <div onclick="fillFormWithHistory(${JSON.stringify(item.inputs).replace(/"/g, '&quot;')})" style="border: 1px solid #ddd; border-radius: 4px; margin-bottom: 10px; padding: 10px; cursor: pointer; transition: background-color 0.2s;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <div style="font-size: 12px; color: #999;">${item.timestamp}</div>
+                            <button onclick="event.stopPropagation(); deleteHistoryItem(${item.id})" style="padding: 2px 8px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 10px;">删除</button>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 5px; font-size: 12px;">
+                            <div><strong>成本价:</strong> ${item.inputs.costPrice.toFixed(2)} CNY</div>
+                            <div><strong>运费:</strong> ${item.inputs.shippingFee.toFixed(2)} CNY</div>
+                            <div><strong>设置售价:</strong> ${item.inputs.sellingPrice.toFixed(2)} CNY</div>
+                            <div><strong>京东同行价:</strong> ${item.inputs.jdPrice.toFixed(2)} CNY</div>
+                            <div><strong>利润:</strong> ${item.results.profit.toFixed(2)} CNY</div>
+                            <div><strong>利润率:</strong> ${(item.results.profitRate * 100).toFixed(2)}%</div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            historyList.innerHTML = html;
+        }
+        
+        // 清空历史记录
+        function clearHistory() {
+            if (confirm('确定要清空历史记录吗？')) {
+                localStorage.removeItem('buyerCalculatorHistory');
+                displayHistory();
+            }
+        }
+        
+        // 删除单个历史记录项
+        function deleteHistoryItem(id) {
+            if (confirm('确定要删除这条历史记录吗？')) {
+                let history = JSON.parse(localStorage.getItem('buyerCalculatorHistory') || '[]');
+                // 过滤掉指定ID的记录
+                history = history.filter(item => item.id !== id);
+                // 保存过滤后的历史记录
+                localStorage.setItem('buyerCalculatorHistory', JSON.stringify(history));
+                // 更新显示
+                displayHistory();
+            }
+        }
+        
+        // 将历史记录填充到表单
+        function fillFormWithHistory(inputs) {
+            // 填充表单输入
+            document.getElementById('costPrice').value = inputs.costPrice;
+            document.getElementById('shippingFee').value = inputs.shippingFee;
+            document.getElementById('sellingPrice').value = inputs.sellingPrice;
+            document.getElementById('jdPrice').value = inputs.jdPrice;
+            document.getElementById('targetProfitRate').value = inputs.targetProfitRate;
+            
+            // 滚动到表单顶部，方便用户查看
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 保存当前结果
+        function saveCurrentResult() {
+            // 获取输入值
+            const costPrice = parseFloat(document.getElementById('costPrice').value) || 0;
+            const shippingFee = parseFloat(document.getElementById('shippingFee').value) || 14;
+            const sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
+            const jdPrice = parseFloat(document.getElementById('jdPrice').value) || 0;
+            const targetProfitRate = parseFloat(document.getElementById('targetProfitRate').value) || 30;
+            
+            // 计算结算金额
+            const settlementPrice = calculateSettlementPrice(sellingPrice, shippingFee);
+            
+            // 计算利润
+            const profit = calculateProfit(settlementPrice, costPrice);
+            
+            // 计算利润率
+            const profitRate = calculateProfitRate(profit, costPrice);
+            
+            // 计算京东同行的结算金额
+            const jdSettlementPrice = calculateSettlementPrice(jdPrice, shippingFee);
+            
+            // 计算京东同行的利润
+            const jdProfit = calculateProfit(jdSettlementPrice, costPrice);
+            
+            // 计算京东同行的利润率
+            const jdProfitRate = calculateProfitRate(jdProfit, costPrice);
+            
+            // 计算不同利润率对应的售价
+            const profit20Price = calculateTargetPrice(costPrice, shippingFee, 0.2);
+            const profit30Price = calculateTargetPrice(costPrice, shippingFee, 0.3);
+            const customTargetPrice = calculateTargetPrice(costPrice, shippingFee, targetProfitRate / 100);
+            
+            // 保存历史记录
+            const results = {
+                settlementPrice,
+                profit,
+                profitRate,
+                jdProfitRate,
+                profit20Price,
+                profit30Price,
+                customTargetPrice
+            };
+            
+            saveHistory(costPrice, shippingFee, sellingPrice, jdPrice, targetProfitRate, results);
+            
+            // 显示保存成功提示
+            alert('记录保存成功！');
+        }
+        
+        // 主计算函数
+        function calculate() {
+            // 获取输入值
+            const costPrice = parseFloat(document.getElementById('costPrice').value) || 0;
+            const shippingFee = parseFloat(document.getElementById('shippingFee').value) || 14;
+            const sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
+            const jdPrice = parseFloat(document.getElementById('jdPrice').value) || 0;
+            const targetProfitRate = parseFloat(document.getElementById('targetProfitRate').value) || 30;
+            
+            // 计算结算金额
+            const settlementPrice = calculateSettlementPrice(sellingPrice, shippingFee);
+            
+            // 计算利润
+            const profit = calculateProfit(settlementPrice, costPrice);
+            
+            // 计算利润率
+            const profitRate = calculateProfitRate(profit, costPrice);
+            
+            // 计算京东同行的结算金额
+            const jdSettlementPrice = calculateSettlementPrice(jdPrice, shippingFee);
+            
+            // 计算京东同行的利润
+            const jdProfit = calculateProfit(jdSettlementPrice, costPrice);
+            
+            // 计算京东同行的利润率
+            const jdProfitRate = calculateProfitRate(jdProfit, costPrice);
+            
+            // 计算不同利润率对应的售价
+            const profit20Price = calculateTargetPrice(costPrice, shippingFee, 0.2);
+            const profit30Price = calculateTargetPrice(costPrice, shippingFee, 0.3);
+            const customTargetPrice = calculateTargetPrice(costPrice, shippingFee, targetProfitRate / 100);
+            
+            // 显示结果
+            document.getElementById('settlementPrice').textContent = settlementPrice.toFixed(2);
+            document.getElementById('profit').textContent = profit.toFixed(2);
+            document.getElementById('profitRate').textContent = (profitRate * 100).toFixed(2);
+            document.getElementById('jdProfitRate').textContent = (jdProfitRate * 100).toFixed(2);
+            document.getElementById('targetPrice30').textContent = profit30Price.toFixed(2);
+            document.getElementById('profit20Price').textContent = profit20Price.toFixed(2);
+            document.getElementById('profit30Price').textContent = profit30Price.toFixed(2);
+            document.getElementById('targetProfitPrice').textContent = customTargetPrice.toFixed(2);
+        }
+        
+        // 切换历史记录的显示/隐藏
+        function toggleHistory() {
+            const historyList = document.getElementById('historyList');
+            const toggleButton = event.target;
+            
+            if (historyList.style.display === 'none') {
+                // 展开历史记录
+                historyList.style.display = 'block';
+                toggleButton.textContent = '收起';
+            } else {
+                // 收起历史记录
+                historyList.style.display = 'none';
+                toggleButton.textContent = '展开';
+            }
+        }
+        
+        // 页面加载时显示历史记录
+        window.onload = function() {
+            displayHistory();
+        };
+    </script>
+</body>
+</html>
