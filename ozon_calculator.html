@@ -18,12 +18,40 @@
         }
         
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
             background-color: white;
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .content-wrapper {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .form-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .results-section {
+            flex: 1;
+            min-width: 300px;
+            margin-top: 0;
+        }
+        
+        .results-section:last-child {
+            margin-top: 30px;
+        }
+        
+        .results-wrapper {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
         }
         
         h1 {
@@ -111,137 +139,163 @@
     <div class="container">
         <h1>Ozon 成本计算器</h1>
         
-        <div class="form-section">
-            <div class="form-group">
-                <label for="costPrice">成本价 (CNY)</label>
-                <input type="number" id="costPrice" step="0.01" placeholder="请输入成本价">
-            </div>
-            
-            <div class="form-group">
-                <label for="weight">克重 (g)</label>
-                <input type="number" id="weight" step="1" placeholder="请输入克重">
-            </div>
-            
-            <div class="form-group">
-                <label for="logistics">物流方式</label>
-                <select id="logistics">
-                    <option value="china_post_pudo_economy">China Post to PUDO Economy</option>
-                    <option value="ets_land">ETS-陆运-到门</option>
-                    <option value="unl_standard_extra_small">UNl Standard Extra Small UNl</option>
-                    <option value="cel_standard_extra_small">CEL Standard Extra Small</option>
-                    <option value="cel_economy_extra_small">CEL Economy Extra Small</option>
-                    <option value="china_post_pudo_standard">China Post to PUDO Standard</option>
-                    <option value="cel_standard_budget">CEL Standard Budget</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="competitorPrice">同行价 (RUB)</label>
-                <input type="number" id="competitorPrice" step="0.01" placeholder="请输入同行价">
-            </div>
-            
-            <div class="form-group">
+        <div class="content-wrapper">
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="costPrice">成本价 (CNY)</label>
+                    <input type="number" id="costPrice" step="0.01" placeholder="请输入成本价">
+                </div>
+                
+                <div class="form-group">
+                    <label for="weight">克重 (g)</label>
+                    <input type="number" id="weight" step="1" placeholder="请输入克重">
+                </div>
+                
+                <div class="form-group">
+                    <label for="logistics">物流方式</label>
+                    <select id="logistics">
+                        <option value="china_post_pudo_economy">China Post to PUDO Economy</option>
+                        <option value="ets_land">ETS-陆运-到门</option>
+                        <option value="unl_standard_extra_small">UNl Standard Extra Small UNl</option>
+                        <option value="cel_standard_extra_small">CEL Standard Extra Small</option>
+                        <option value="cel_economy_extra_small">CEL Economy Extra Small</option>
+                        <option value="china_post_pudo_standard">China Post to PUDO Standard</option>
+                        <option value="cel_standard_budget">CEL Standard Budget</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="competitorPrice">同行价 (RUB)</label>
+                    <input type="number" id="competitorPrice" step="0.01" placeholder="请输入同行价">
+                </div>
+                
+                <div class="form-group">
                 <label for="settingIndex">设置指数</label>
                 <select id="settingIndex">
-                    <option value="1.029">1.029</option>
-                    <option value="1.059">1.059</option>
+                    <option value="1.02">1.02 (有利)</option>
+                    <option value="1.03">1.03 (中等)</option>
+                    <option value="1.04">1.04 (中等)</option>
+                    <option value="1.05">1.05 (中等)</option>
+                    <option value="1.06">1.06 (不利)</option>
+                    <option value="1.08">1.08 (不利)</option>
+                    <option value="1.10">1.10 (不利)</option>
                 </select>
             </div>
-            
-            <div class="form-group">
-                <label for="settingPrice">设置售价 (CNY)</label>
-                <input type="number" id="settingPrice" step="0.01" placeholder="请输入设置售价">
-            </div>
-            
-            <div class="form-group">
-                <label for="targetProfitRate">目标利润率 (%)</label>
-                <input type="number" id="targetProfitRate" step="1" min="1" max="100" value="25" placeholder="请输入目标利润率">
-            </div>
-            
-            <div class="form-group">
-                <label for="minProfit">保底利润 (CNY)</label>
-                <input type="number" id="minProfit" step="0.01" min="0" value="1" placeholder="请输入保底利润">
                 
-                <div style="margin-top: 10px; padding: 10px; background-color: #f9f9f9; border-radius: 4px;">
-                    <h4 style="margin-bottom: 10px; color: #333;">推荐售价</h4>
-                    <div style="margin-bottom: 5px;">
-                        <span style="font-weight: bold;">基础推荐:</span>
-                        <span id="recommendedPrice" style="margin-left: 10px;">-</span> CNY
-                        <span style="margin-left: 20px;">利润率：</span>
-                        <span id="recommendedProfitRate" style="margin-left: 5px;">-</span> %
+                <div class="form-group">
+                <label for="settingPrice">设置售价 (CNY)</label>
+                <input type="number" id="settingPrice" step="0.01" placeholder="请输入设置售价" style="border-color: #2196F3; box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);">
+            </div>
+                
+                <div class="form-group">
+                    <label for="targetProfitRate">目标利润率 (%)</label>
+                    <input type="number" id="targetProfitRate" step="1" min="1" max="100" value="25" placeholder="请输入目标利润率">
+                </div>
+                
+                <div class="form-group">
+                    <label for="minProfit">保底利润 (CNY)</label>
+                    <input type="number" id="minProfit" step="0.01" min="0" value="1" placeholder="请输入保底利润">
+                </div>
+                
+                <button class="calculate-btn" onclick="calculate()">计算</button>
+                <button class="calculate-btn" style="margin-top: 10px; background-color: #2196F3;" onclick="saveCurrentResult()">保存记录</button>
+            </div>
+            
+            <div class="results-wrapper">
+                <div class="results-section">
+                    <div class="section-title">计算结果</div>
+                    
+                    <div class="result-row">
+                        <span class="result-label">转换后人民币价格 (CNY):</span>
+                        <span class="result-value" id="convertedPrice">-</span>
                     </div>
-                    <div style="margin-bottom: 5px;">
-                        <span style="font-weight: bold;">20%利润:</span>
-                        <span id="profit20Price" style="margin-left: 10px;">-</span> CNY
-                        <span style="margin-left: 20px;">利润率：</span>
-                        <span id="profit20Rate" style="margin-left: 5px;">-</span> %
+                    
+                    <div class="result-row">
+                        <span class="result-label">同行指数:</span>
+                        <span class="result-value" id="competitorIndex">-</span>
                     </div>
-                    <div style="margin-bottom: 5px;">
-                        <span style="font-weight: bold;">30%利润:</span>
-                        <span id="profit30Price" style="margin-left: 10px;">-</span> CNY
-                        <span style="margin-left: 20px;">利润率：</span>
-                        <span id="profit30Rate" style="margin-left: 5px;">-</span> %
+                    
+                    <div class="result-row">
+                        <span class="result-label">运费 (CNY):</span>
+                        <span class="result-value" id="shippingFee">-</span>
                     </div>
-                    <div style="margin-bottom: 5px;">
-                        <span style="font-weight: bold;">目标利润:</span>
-                        <span id="targetProfitPrice" style="margin-left: 10px;">-</span> CNY
-                        <span style="margin-left: 20px;">利润率：</span>
-                        <span id="targetProfitRateDisplay" style="margin-left: 5px;">-</span> %
+                    
+                    <div class="result-row">
+                        <span class="result-label">结算价格 (CNY):</span>
+                        <span class="result-value" id="settlementPrice">-</span>
                     </div>
-                    <div style="margin-bottom: 5px;">
-                        <span style="font-weight: bold;">保底利润:</span>
-                        <span id="minProfitPrice" style="margin-left: 10px;">-</span> CNY
-                        <span style="margin-left: 20px;">利润率：</span>
-                        <span id="minProfitRate" style="margin-left: 5px;">-</span> %
+                    
+                    <div class="result-row">
+                        <span class="result-label">实际利润 (CNY):</span>
+                        <span class="result-value" id="actualProfit">-</span>
                     </div>
-                    <hr style="margin: 10px 0; border: 0.5px solid #ddd;">
-                    <h4 style="margin-bottom: 10px; color: #333;">实际利润</h4>
-                    <div style="margin-bottom: 5px;">
-                        <span style="font-weight: bold;">实际利润:</span>
-                        <span id="actualProfit" style="margin-left: 10px;">-</span> CNY
-                    </div>
-                    <div style="margin-bottom: 5px;">
-                        <span style="font-weight: bold;">实际利润率:</span>
-                        <span id="actualProfitRate" style="margin-left: 10px;">-</span>%
+                    
+                    <div class="result-row">
+                        <span class="result-label">实际利润率 (%):</span>
+                        <span class="result-value" id="actualProfitRate">-</span>
                     </div>
                 </div>
-            </div>
-            
-            <button class="calculate-btn" onclick="calculate()">计算</button>
-        </div>
-        
-        <div class="results-section">
-            <div class="section-title">计算结果</div>
-            
-            <div class="result-row">
-                <span class="result-label">转换后人民币价格 (CNY):</span>
-                <span class="result-value" id="convertedPrice">-</span>
-            </div>
-            
-            <div class="result-row">
-                <span class="result-label">同行指数:</span>
-                <span class="result-value" id="competitorIndex">-</span>
-            </div>
-            
-            <div class="result-row">
-                <span class="result-label">运费 (CNY):</span>
-                <span class="result-value" id="shippingFee">-</span>
-            </div>
-            
-            <div class="result-row">
-                <span class="result-label">结算价格 (CNY):</span>
-                <span class="result-value" id="settlementPrice">-</span>
-            </div>
-        </div>
-        
-        <div class="results-section" style="margin-top: 30px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <div class="section-title" style="margin: 0;">历史记录</div>
-                <button onclick="clearHistory()" style="padding: 5px 10px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">清空历史</button>
-            </div>
-            
-            <div id="historyList" style="max-height: 300px; overflow-y: auto;">
-                <div style="text-align: center; color: #999; padding: 20px;">暂无历史记录</div>
+                
+                <div class="results-section">
+                    <div class="section-title">推荐售价</div>
+                    
+                    <div style="padding: 10px; background-color: #f9f9f9; border-radius: 4px; font-size: 14px;">
+                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: bold;">基础推荐:</span>
+                            <div style="display: flex; gap: 15px;">
+                                <span><span id="recommendedPrice">-</span> CNY</span>
+                                <span>利润率：<span id="recommendedProfitRate">-</span> %</span>
+                                <span>同行指数：<span id="recommendedIndex">-</span></span>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: bold;">20%利润:</span>
+                            <div style="display: flex; gap: 15px;">
+                                <span><span id="profit20Price">-</span> CNY</span>
+                                <span>利润率：<span id="profit20Rate">-</span> %</span>
+                                <span>同行指数：<span id="profit20Index">-</span></span>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: bold;">30%利润:</span>
+                            <div style="display: flex; gap: 15px;">
+                                <span><span id="profit30Price">-</span> CNY</span>
+                                <span>利润率：<span id="profit30Rate">-</span> %</span>
+                                <span>同行指数：<span id="profit30Index">-</span></span>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: bold;">目标利润:</span>
+                            <div style="display: flex; gap: 15px;">
+                                <span><span id="targetProfitPrice">-</span> CNY</span>
+                                <span>利润率：<span id="targetProfitRateDisplay">-</span> %</span>
+                                <span>同行指数：<span id="targetProfitIndex">-</span></span>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: bold;">保底利润:</span>
+                            <div style="display: flex; gap: 15px;">
+                                <span><span id="minProfitPrice">-</span> CNY</span>
+                                <span>利润率：<span id="minProfitRate">-</span> %</span>
+                                <span>同行指数：<span id="minProfitIndex">-</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="results-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <div class="section-title" style="margin: 0;">历史记录</div>
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="toggleHistory()" style="padding: 5px 10px; background-color: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">收起</button>
+                            <button onclick="clearHistory()" style="padding: 5px 10px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">清空历史</button>
+                        </div>
+                    </div>
+                    
+                    <div id="historyList" style="max-height: 300px; overflow-y: auto;">
+                        <div style="text-align: center; color: #999; padding: 20px;">暂无历史记录</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -329,9 +383,9 @@
             // 添加到历史记录开头
             history.unshift(historyItem);
             
-            // 限制历史记录数量为10条
-            if (history.length > 10) {
-                history = history.slice(0, 10);
+            // 限制历史记录数量为5条
+            if (history.length > 5) {
+                history = history.slice(0, 5);
             }
             
             // 保存到localStorage
@@ -411,8 +465,8 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         
-        // 主计算函数
-        function calculate() {
+        // 保存当前结果
+        function saveCurrentResult() {
             // 获取输入值
             const costPrice = parseFloat(document.getElementById('costPrice').value) || 0;
             const weight = parseFloat(document.getElementById('weight').value) || 0;
@@ -430,7 +484,16 @@
             const recommendedPrice = convertedPrice * settingIndex;
             
             // 计算同行指数
-            const competitorIndex = settingPrice > 0 ? settingPrice / convertedPrice : 0;
+            let competitorIndex = 0;
+            if (settingPrice > 0 && convertedPrice > 0) {
+                if (settingPrice < convertedPrice) {
+                    // Ozon的价格低于竞争对手的价格
+                    competitorIndex = settingPrice / convertedPrice;
+                } else {
+                    // Ozon的价格高于竞争对手的价格
+                    competitorIndex = 2 - (convertedPrice / settingPrice);
+                }
+            }
             
             // 计算运费
             const shippingFee = calculateShippingFee(logistics, weight);
@@ -458,6 +521,105 @@
             const recommendedProfitRate = calculateProfitRate(recommendedPrice, costPrice, shippingFee);
             const minProfitRate = calculateProfitRate(minProfitPrice, costPrice, shippingFee);
             
+            // 保存历史记录
+            const results = {
+                convertedPrice,
+                recommendedPrice,
+                competitorIndex,
+                shippingFee,
+                settlementPrice,
+                actualProfit,
+                actualProfitRate,
+                profit20Price,
+                profit30Price,
+                targetProfitPrice,
+                minProfitPrice,
+                recommendedProfitRate,
+                minProfitRate
+            };
+            
+            saveHistory(costPrice, weight, logistics, competitorPrice, settingIndex, settingPrice, targetProfitRate, minProfit, results);
+            
+            // 显示保存成功提示
+            alert('记录保存成功！');
+        }
+        
+        // 主计算函数
+        function calculate() {
+            // 获取输入值
+            const costPrice = parseFloat(document.getElementById('costPrice').value) || 0;
+            const weight = parseFloat(document.getElementById('weight').value) || 0;
+            const logistics = document.getElementById('logistics').value;
+            const competitorPrice = parseFloat(document.getElementById('competitorPrice').value) || 0;
+            const settingIndex = parseFloat(document.getElementById('settingIndex').value) || 1;
+            const settingPrice = parseFloat(document.getElementById('settingPrice').value) || 0;
+            const targetProfitRate = parseFloat(document.getElementById('targetProfitRate').value) || 25;
+            const minProfit = parseFloat(document.getElementById('minProfit').value) || 1;
+            
+            // 计算转换后人民币价格
+            const convertedPrice = competitorPrice * EXCHANGE_RATE;
+            
+            // 计算推荐售价
+            const recommendedPrice = convertedPrice * settingIndex;
+            
+            // 计算同行指数
+            let competitorIndex = 0;
+            if (settingPrice > 0 && convertedPrice > 0) {
+                if (settingPrice < convertedPrice) {
+                    // Ozon的价格低于竞争对手的价格
+                    competitorIndex = settingPrice / convertedPrice;
+                } else {
+                    // Ozon的价格高于竞争对手的价格
+                    competitorIndex = 2 - (convertedPrice / settingPrice);
+                }
+            }
+            
+            // 计算运费
+            const shippingFee = calculateShippingFee(logistics, weight);
+            
+            // 计算结算价格
+            const settlementPrice = settingPrice - (settingPrice * 0.07) - 1.5 - shippingFee - (settingPrice * 0.12);
+            
+            // 计算实际利润
+            const actualProfit = settlementPrice - costPrice;
+            
+            // 计算实际利润率
+            const actualProfitRate = costPrice > 0 ? actualProfit / costPrice : 0;
+            
+            // 计算利润20-30%的推荐售价
+            const profit20Price = calculateProfitPrice(costPrice, shippingFee, 0.2);
+            const profit30Price = calculateProfitPrice(costPrice, shippingFee, 0.3);
+            
+            // 计算目标利润率的推荐售价
+            const targetProfitPrice = calculateProfitPrice(costPrice, shippingFee, targetProfitRate / 100);
+            
+            // 计算保底利润的推荐售价
+            const minProfitPrice = calculateMinProfitPrice(costPrice, shippingFee, minProfit);
+            
+            // 计算各种推荐售价的利润率
+            const recommendedProfitRate = calculateProfitRate(recommendedPrice, costPrice, shippingFee);
+            const minProfitRate = calculateProfitRate(minProfitPrice, costPrice, shippingFee);
+            
+            // 计算各种推荐售价的同行指数
+            function calculateRecommendedIndex(price) {
+                if (price > 0 && convertedPrice > 0) {
+                    if (price < convertedPrice) {
+                        // Ozon的价格低于竞争对手的价格
+                        return price / convertedPrice;
+                    } else {
+                        // Ozon的价格高于竞争对手的价格
+                        return 2 - (convertedPrice / price);
+                    }
+                }
+                return 0;
+            }
+            
+            const recommendedIndex = calculateRecommendedIndex(recommendedPrice);
+            const profit20Index = calculateRecommendedIndex(profit20Price);
+            const profit30Index = calculateRecommendedIndex(profit30Price);
+            const targetProfitIndex = calculateRecommendedIndex(targetProfitPrice);
+            const minProfitIndex = calculateRecommendedIndex(minProfitPrice);
+            
             // 显示结果
             document.getElementById('convertedPrice').textContent = convertedPrice.toFixed(2);
             document.getElementById('recommendedPrice').textContent = recommendedPrice.toFixed(2);
@@ -478,24 +640,28 @@
             document.getElementById('targetProfitRateDisplay').textContent = targetProfitRate.toFixed(2);
             document.getElementById('minProfitRate').textContent = (minProfitRate * 100).toFixed(2);
             
-            // 保存历史记录
-            const results = {
-                convertedPrice,
-                recommendedPrice,
-                competitorIndex,
-                shippingFee,
-                settlementPrice,
-                actualProfit,
-                actualProfitRate,
-                profit20Price,
-                profit30Price,
-                targetProfitPrice,
-                minProfitPrice,
-                recommendedProfitRate,
-                minProfitRate
-            };
+            // 显示同行指数
+            document.getElementById('recommendedIndex').textContent = recommendedIndex.toFixed(4);
+            document.getElementById('profit20Index').textContent = profit20Index.toFixed(4);
+            document.getElementById('profit30Index').textContent = profit30Index.toFixed(4);
+            document.getElementById('targetProfitIndex').textContent = targetProfitIndex.toFixed(4);
+            document.getElementById('minProfitIndex').textContent = minProfitIndex.toFixed(4);
+        }
+        
+        // 切换历史记录的显示/隐藏
+        function toggleHistory() {
+            const historyList = document.getElementById('historyList');
+            const toggleButton = event.target;
             
-            saveHistory(costPrice, weight, logistics, competitorPrice, settingIndex, settingPrice, targetProfitRate, minProfit, results);
+            if (historyList.style.display === 'none') {
+                // 展开历史记录
+                historyList.style.display = 'block';
+                toggleButton.textContent = '收起';
+            } else {
+                // 收起历史记录
+                historyList.style.display = 'none';
+                toggleButton.textContent = '展开';
+            }
         }
         
         // 页面加载时显示历史记录
