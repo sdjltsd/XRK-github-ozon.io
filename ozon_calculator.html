@@ -167,22 +167,32 @@
                     <div style="margin-bottom: 5px;">
                         <span style="font-weight: bold;">基础推荐:</span>
                         <span id="recommendedPrice" style="margin-left: 10px;">-</span> CNY
+                        <span style="margin-left: 20px;">利润率：</span>
+                        <span id="recommendedProfitRate" style="margin-left: 5px;">-</span> %
                     </div>
                     <div style="margin-bottom: 5px;">
                         <span style="font-weight: bold;">20%利润:</span>
                         <span id="profit20Price" style="margin-left: 10px;">-</span> CNY
+                        <span style="margin-left: 20px;">利润率：</span>
+                        <span id="profit20Rate" style="margin-left: 5px;">-</span> %
                     </div>
                     <div style="margin-bottom: 5px;">
                         <span style="font-weight: bold;">30%利润:</span>
                         <span id="profit30Price" style="margin-left: 10px;">-</span> CNY
+                        <span style="margin-left: 20px;">利润率：</span>
+                        <span id="profit30Rate" style="margin-left: 5px;">-</span> %
                     </div>
                     <div style="margin-bottom: 5px;">
                         <span style="font-weight: bold;">目标利润:</span>
                         <span id="targetProfitPrice" style="margin-left: 10px;">-</span> CNY
+                        <span style="margin-left: 20px;">利润率：</span>
+                        <span id="targetProfitRateDisplay" style="margin-left: 5px;">-</span> %
                     </div>
                     <div style="margin-bottom: 5px;">
                         <span style="font-weight: bold;">保底利润:</span>
                         <span id="minProfitPrice" style="margin-left: 10px;">-</span> CNY
+                        <span style="margin-left: 20px;">利润率：</span>
+                        <span id="minProfitRate" style="margin-left: 5px;">-</span> %
                     </div>
                     <hr style="margin: 10px 0; border: 0.5px solid #ddd;">
                     <h4 style="margin-bottom: 10px; color: #333;">实际利润</h4>
@@ -192,7 +202,7 @@
                     </div>
                     <div style="margin-bottom: 5px;">
                         <span style="font-weight: bold;">实际利润率:</span>
-                        <span id="actualProfitRate" style="margin-left: 10px;">-</span> %
+                        <span id="actualProfitRate" style="margin-left: 10px;">-</span>%
                     </div>
                 </div>
             </div>
@@ -273,6 +283,16 @@
             return totalCost / 0.81; // 0.81 = 1 - 0.07 - 0.12
         }
         
+        // 计算利润率
+        function calculateProfitRate(sellingPrice, costPrice, shippingFee) {
+            // 结算价格 = P - 0.07P - 1.5 - 运费 - 0.12P = 0.81P - 1.5 - 运费
+            const settlementPrice = 0.81 * sellingPrice - 1.5 - shippingFee;
+            // 实际利润 = 结算价格 - 成本价
+            const actualProfit = settlementPrice - costPrice;
+            // 实际利润率 = 实际利润 / 成本价
+            return costPrice > 0 ? actualProfit / costPrice : 0;
+        }
+        
         // 主计算函数
         function calculate() {
             // 获取输入值
@@ -316,6 +336,10 @@
             // 计算保底利润的推荐售价
             const minProfitPrice = calculateMinProfitPrice(costPrice, shippingFee, minProfit);
             
+            // 计算各种推荐售价的利润率
+            const recommendedProfitRate = calculateProfitRate(recommendedPrice, costPrice, shippingFee);
+            const minProfitRate = calculateProfitRate(minProfitPrice, costPrice, shippingFee);
+            
             // 显示结果
             document.getElementById('convertedPrice').textContent = convertedPrice.toFixed(2);
             document.getElementById('recommendedPrice').textContent = recommendedPrice.toFixed(2);
@@ -323,11 +347,18 @@
             document.getElementById('shippingFee').textContent = shippingFee.toFixed(2);
             document.getElementById('settlementPrice').textContent = settlementPrice.toFixed(2);
             document.getElementById('actualProfit').textContent = actualProfit.toFixed(2);
-            document.getElementById('actualProfitRate').textContent = (actualProfitRate * 100).toFixed(2) + '%';
+            document.getElementById('actualProfitRate').textContent = (actualProfitRate * 100).toFixed(2);
             document.getElementById('profit20Price').textContent = profit20Price.toFixed(2);
             document.getElementById('profit30Price').textContent = profit30Price.toFixed(2);
             document.getElementById('targetProfitPrice').textContent = targetProfitPrice.toFixed(2);
             document.getElementById('minProfitPrice').textContent = minProfitPrice.toFixed(2);
+            
+            // 显示利润率
+            document.getElementById('recommendedProfitRate').textContent = (recommendedProfitRate * 100).toFixed(2);
+            document.getElementById('profit20Rate').textContent = '20.00';
+            document.getElementById('profit30Rate').textContent = '30.00';
+            document.getElementById('targetProfitRateDisplay').textContent = targetProfitRate.toFixed(2);
+            document.getElementById('minProfitRate').textContent = (minProfitRate * 100).toFixed(2);
         }
     </script>
 </body>
