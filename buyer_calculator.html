@@ -141,6 +141,44 @@
             border-radius: 4px;
             border-left: 4px solid #2196f3;
         }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .content-wrapper {
+                flex-direction: column;
+            }
+            
+            .form-section, 
+            .results-wrapper,
+            .results-section {
+                min-width: 100%;
+            }
+            
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+            
+            .result-row {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .result-label {
+                margin-bottom: 2px;
+            }
+            
+            .result-value {
+                text-align: right;
+            }
+        }
     </style>
 </head>
 <body>
