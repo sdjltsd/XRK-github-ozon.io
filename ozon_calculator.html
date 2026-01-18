@@ -133,6 +133,69 @@
             padding-bottom: 5px;
             border-bottom: 1px solid #ddd;
         }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            .content-wrapper {
+                flex-direction: column;
+            }
+            
+            .form-section, 
+            .results-wrapper,
+            .results-section {
+                min-width: 100%;
+            }
+            
+            h1 {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+            
+            .result-row {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .result-label {
+                margin-bottom: 2px;
+            }
+            
+            .result-value {
+                text-align: right;
+            }
+            
+            .recommendation-row {
+                flex-direction: column;
+                align-items: flex-start;
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+                border-bottom: 1px dashed #ddd;
+            }
+            
+            .recommendation-row:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+            }
+            
+            .rec-label {
+                margin-bottom: 5px;
+                color: #2196F3;
+            }
+            
+            .rec-values {
+                flex-direction: column;
+                gap: 5px;
+                width: 100%;
+                padding-left: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -239,42 +302,42 @@
                 <div class="results-section">
                     <div class="section-title">推荐售价</div>
                     
-                    <div style="padding: 10px; background-color: #f9f9f9; border-radius: 4px; font-size: 14px;">
-                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: bold;">基础推荐:</span>
-                            <div style="display: flex; gap: 15px;">
+                    <div class="recommendation-box">
+                        <div class="recommendation-row">
+                            <span class="rec-label">基础推荐:</span>
+                            <div class="rec-values">
                                 <span><span id="recommendedPrice">-</span> CNY</span>
                                 <span>利润率：<span id="recommendedProfitRate">-</span> %</span>
                                 <span>同行指数：<span id="recommendedIndex">-</span></span>
                             </div>
                         </div>
-                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: bold;">20%利润:</span>
-                            <div style="display: flex; gap: 15px;">
+                        <div class="recommendation-row">
+                            <span class="rec-label">20%利润:</span>
+                            <div class="rec-values">
                                 <span><span id="profit20Price">-</span> CNY</span>
                                 <span>利润率：<span id="profit20Rate">-</span> %</span>
                                 <span>同行指数：<span id="profit20Index">-</span></span>
                             </div>
                         </div>
-                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: bold;">30%利润:</span>
-                            <div style="display: flex; gap: 15px;">
+                        <div class="recommendation-row">
+                            <span class="rec-label">30%利润:</span>
+                            <div class="rec-values">
                                 <span><span id="profit30Price">-</span> CNY</span>
                                 <span>利润率：<span id="profit30Rate">-</span> %</span>
                                 <span>同行指数：<span id="profit30Index">-</span></span>
                             </div>
                         </div>
-                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: bold;">目标利润:</span>
-                            <div style="display: flex; gap: 15px;">
+                        <div class="recommendation-row">
+                            <span class="rec-label">目标利润:</span>
+                            <div class="rec-values">
                                 <span><span id="targetProfitPrice">-</span> CNY</span>
                                 <span>利润率：<span id="targetProfitRateDisplay">-</span> %</span>
                                 <span>同行指数：<span id="targetProfitIndex">-</span></span>
                             </div>
                         </div>
-                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: bold;">保底利润:</span>
-                            <div style="display: flex; gap: 15px;">
+                        <div class="recommendation-row">
+                            <span class="rec-label">保底利润:</span>
+                            <div class="rec-values">
                                 <span><span id="minProfitPrice">-</span> CNY</span>
                                 <span>利润率：<span id="minProfitRate">-</span> %</span>
                                 <span>同行指数：<span id="minProfitIndex">-</span></span>
