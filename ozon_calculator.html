@@ -133,68 +133,77 @@
             padding-bottom: 5px;
             border-bottom: 1px solid #ddd;
         }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            
-            .container {
-                padding: 15px;
-            }
-            
-            .content-wrapper {
-                flex-direction: column;
-            }
-            
-            .form-section, 
-            .results-wrapper,
-            .results-section {
-                min-width: 100%;
-            }
-            
-            h1 {
-                font-size: 24px;
-                margin-bottom: 20px;
-            }
-            
-            .result-row {
-                flex-direction: column;
-                gap: 5px;
-            }
-            
-            .result-label {
-                margin-bottom: 2px;
-            }
-            
-            .result-value {
-                text-align: right;
-            }
-            
-            .recommendation-row {
-                flex-direction: column;
-                align-items: flex-start;
-                margin-bottom: 15px;
-                padding-bottom: 10px;
-                border-bottom: 1px dashed #ddd;
-            }
-            
-            .recommendation-row:last-child {
-                border-bottom: none;
-                margin-bottom: 0;
-            }
-            
-            .rec-label {
-                margin-bottom: 5px;
-                color: #2196F3;
-            }
-            
-            .rec-values {
-                flex-direction: column;
-                gap: 5px;
-                width: 100%;
-                padding-left: 10px;
-            }
+        
+        /* 小灯泡提示样式 */
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        
+        .tooltip-icon {
+            width: 20px;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            color: #666;
+            border: 1px solid #ddd;
+            transition: all 0.2s ease;
+        }
+        
+        .tooltip-icon:hover {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+            color: #2196f3;
+        }
+        
+        .tooltip-content {
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            min-width: 200px;
+            max-width: 400px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .tooltip-container:hover .tooltip-content {
+            display: block;
+        }
+        
+        .tooltip-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        
+        .result-with-tooltip {
+            display: flex;
+            align-items: center;
+        }
+        
+        .result-value {
+            color: #333;
+            min-width: 100px;
         }
     </style>
 </head>
@@ -270,75 +279,197 @@
                     
                     <div class="result-row">
                         <span class="result-label">转换后人民币价格 (CNY):</span>
-                        <span class="result-value" id="convertedPrice">-</span>
+                        <div class="result-with-tooltip">
+                            <span class="result-value" id="convertedPrice">-</span>
+                            <div class="tooltip-container">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>转换后人民币价格 = 同行价 (RUB) × 汇率</div>
+                                    <div>汇率: 1 卢布 = 0.088671 人民币</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="result-row">
                         <span class="result-label">同行指数:</span>
-                        <span class="result-value" id="competitorIndex">-</span>
+                        <div class="result-with-tooltip">
+                            <span class="result-value" id="competitorIndex">-</span>
+                            <div class="tooltip-container">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>如果设置售价 < 转换后人民币价格:</div>
+                                    <div>同行指数 = 设置售价 / 转换后人民币价格</div>
+                                    <div>如果设置售价 >= 转换后人民币价格:</div>
+                                    <div>同行指数 = 2 - (转换后人民币价格 / 设置售价)</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="result-row">
                         <span class="result-label">运费 (CNY):</span>
-                        <span class="result-value" id="shippingFee">-</span>
+                        <div class="result-with-tooltip">
+                            <span class="result-value" id="shippingFee">-</span>
+                            <div class="tooltip-container">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>根据所选物流方式和克重计算:</div>
+                                    <div>China Post to PUDO Economy: 1.93 + 克重 × 0.026</div>
+                                    <div>ETS-陆运-到门: 1.73 + 克重 × 0.034</div>
+                                    <div>UNl Standard Extra Small UNl: 3 + 克重 × 0.035</div>
+                                    <div>CEL Standard Extra Small: 3 + 克重 × 0.035</div>
+                                    <div>CEL Economy Extra Small: 3 + 克重 × 0.025</div>
+                                    <div>China Post to PUDO Standard: 1.9 + 克重 × 0.067</div>
+                                    <div>CEL Standard Budget: 23 + 克重 × 0.025</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="result-row">
                         <span class="result-label">结算价格 (CNY):</span>
-                        <span class="result-value" id="settlementPrice">-</span>
+                        <div class="result-with-tooltip">
+                            <span class="result-value" id="settlementPrice">-</span>
+                            <div class="tooltip-container">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>结算价格 = 设置售价 - 设置售价×0.07 - 1.5 - 运费 - 设置售价×0.12</div>
+                                    <div>0.07: 平台佣金</div>
+                                    <div>1.5: 中转费用</div>
+                                    <div>0.12: 其他费用</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="result-row">
                         <span class="result-label">实际利润 (CNY):</span>
-                        <span class="result-value" id="actualProfit">-</span>
+                        <div class="result-with-tooltip">
+                            <span class="result-value" id="actualProfit">-</span>
+                            <div class="tooltip-container">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>实际利润 = 结算价格 - 成本价</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="result-row">
                         <span class="result-label">实际利润率 (%):</span>
-                        <span class="result-value" id="actualProfitRate">-</span>
+                        <div class="result-with-tooltip">
+                            <span class="result-value" id="actualProfitRate">-</span>
+                            <div class="tooltip-container">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>实际利润率 = 实际利润 / 售卖价</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="results-section">
                     <div class="section-title">推荐售价</div>
                     
-                    <div class="recommendation-box">
-                        <div class="recommendation-row">
-                            <span class="rec-label">基础推荐:</span>
-                            <div class="rec-values">
-                                <span><span id="recommendedPrice">-</span> CNY</span>
+                    <div style="padding: 10px; background-color: #f9f9f9; border-radius: 4px; font-size: 14px;">
+                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: bold;">基础推荐:</span>
+                            <div style="display: flex; gap: 15px; align-items: center;">
+                                <div class="result-with-tooltip">
+                                    <span style="cursor: pointer; text-decoration: underline; color: #2196F3;" onclick="fillSettingPrice(parseFloat(document.getElementById('recommendedPrice').textContent))"><span id="recommendedPrice">-</span> CNY</span>
+                                    <div class="tooltip-container">
+                                        <div class="tooltip-icon">i</div>
+                                        <div class="tooltip-content">
+                                            <div><strong>计算公式:</strong></div>
+                                            <div>基础推荐售价 = 转换后人民币价格 × 设置指数</div>
+                                            <div><small>点击价格自动填充到设置售价</small></div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <span>利润率：<span id="recommendedProfitRate">-</span> %</span>
                                 <span>同行指数：<span id="recommendedIndex">-</span></span>
                             </div>
                         </div>
-                        <div class="recommendation-row">
-                            <span class="rec-label">20%利润:</span>
-                            <div class="rec-values">
-                                <span><span id="profit20Price">-</span> CNY</span>
+                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: bold;">20%利润:</span>
+                            <div style="display: flex; gap: 15px; align-items: center;">
+                                <div class="result-with-tooltip">
+                                    <span style="cursor: pointer; text-decoration: underline; color: #2196F3;" onclick="fillSettingPrice(parseFloat(document.getElementById('profit20Price').textContent))"><span id="profit20Price">-</span> CNY</span>
+                                    <div class="tooltip-container">
+                                        <div class="tooltip-icon">i</div>
+                                        <div class="tooltip-content">
+                                            <div><strong>计算公式:</strong></div>
+                                            <div>20%利润售价 = [成本价 × (1 + 0.2) + 运费 + 1.5] / 0.81</div>
+                                            <div>0.81 = 1 - 0.07 - 0.12</div>
+                                            <div><small>点击价格自动填充到设置售价</small></div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <span>利润率：<span id="profit20Rate">-</span> %</span>
                                 <span>同行指数：<span id="profit20Index">-</span></span>
                             </div>
                         </div>
-                        <div class="recommendation-row">
-                            <span class="rec-label">30%利润:</span>
-                            <div class="rec-values">
-                                <span><span id="profit30Price">-</span> CNY</span>
+                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: bold;">30%利润:</span>
+                            <div style="display: flex; gap: 15px; align-items: center;">
+                                <div class="result-with-tooltip">
+                                    <span style="cursor: pointer; text-decoration: underline; color: #2196F3;" onclick="fillSettingPrice(parseFloat(document.getElementById('profit30Price').textContent))"><span id="profit30Price">-</span> CNY</span>
+                                    <div class="tooltip-container">
+                                        <div class="tooltip-icon">i</div>
+                                        <div class="tooltip-content">
+                                            <div><strong>计算公式:</strong></div>
+                                            <div>30%利润售价 = [成本价 × (1 + 0.3) + 运费 + 1.5] / 0.81</div>
+                                            <div>0.81 = 1 - 0.07 - 0.12</div>
+                                            <div><small>点击价格自动填充到设置售价</small></div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <span>利润率：<span id="profit30Rate">-</span> %</span>
                                 <span>同行指数：<span id="profit30Index">-</span></span>
                             </div>
                         </div>
-                        <div class="recommendation-row">
-                            <span class="rec-label">目标利润:</span>
-                            <div class="rec-values">
-                                <span><span id="targetProfitPrice">-</span> CNY</span>
+                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: bold;">目标利润:</span>
+                            <div style="display: flex; gap: 15px; align-items: center;">
+                                <div class="result-with-tooltip">
+                                    <span style="cursor: pointer; text-decoration: underline; color: #2196F3;" onclick="fillSettingPrice(parseFloat(document.getElementById('targetProfitPrice').textContent))"><span id="targetProfitPrice">-</span> CNY</span>
+                                    <div class="tooltip-container">
+                                        <div class="tooltip-icon">i</div>
+                                        <div class="tooltip-content">
+                                            <div><strong>计算公式:</strong></div>
+                                            <div>目标利润售价 = [成本价 × (1 + 目标利润率/100) + 运费 + 1.5] / 0.81</div>
+                                            <div>0.81 = 1 - 0.07 - 0.12</div>
+                                            <div><small>点击价格自动填充到设置售价</small></div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <span>利润率：<span id="targetProfitRateDisplay">-</span> %</span>
                                 <span>同行指数：<span id="targetProfitIndex">-</span></span>
                             </div>
                         </div>
-                        <div class="recommendation-row">
-                            <span class="rec-label">保底利润:</span>
-                            <div class="rec-values">
-                                <span><span id="minProfitPrice">-</span> CNY</span>
+                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: bold;">保底利润:</span>
+                            <div style="display: flex; gap: 15px; align-items: center;">
+                                <div class="result-with-tooltip">
+                                    <span style="cursor: pointer; text-decoration: underline; color: #2196F3;" onclick="fillSettingPrice(parseFloat(document.getElementById('minProfitPrice').textContent))"><span id="minProfitPrice">-</span> CNY</span>
+                                    <div class="tooltip-container">
+                                        <div class="tooltip-icon">i</div>
+                                        <div class="tooltip-content">
+                                            <div><strong>计算公式:</strong></div>
+                                            <div>保底利润售价 = (成本价 + 保底利润 + 运费 + 1.5) / 0.81</div>
+                                            <div>0.81 = 1 - 0.07 - 0.12</div>
+                                            <div><small>点击价格自动填充到设置售价</small></div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <span>利润率：<span id="minProfitRate">-</span> %</span>
                                 <span>同行指数：<span id="minProfitIndex">-</span></span>
                             </div>
@@ -392,12 +523,12 @@
         // 计算利润20-30%的推荐售价
         function calculateProfitPrice(costPrice, shippingFee, profitRate) {
             // 推导公式：
-            // 实际利润率 = (结算价格 - 成本价) / 成本价 = r
+            // 实际利润率 = (结算价格 - 成本价) / 售卖价 = r
             // 结算价格 = P - 0.07P - 1.5 - 运费 - 0.12P = 0.81P - 1.5 - 运费
-            // 代入得：(0.81P - 1.5 - 运费 - 成本价) / 成本价 = r
-            // 解得：P = [成本价 × (1 + r) + 1.5 + 运费] / 0.81
-            const totalCost = costPrice * (1 + profitRate) + shippingFee + 1.5; // 加上中转费用
-            return totalCost / 0.81; // 0.81 = 1 - 0.07 - 0.12
+            // 代入得：(0.81P - 1.5 - 运费 - 成本价) / P = r
+            // 解得：P = (成本价 + 1.5 + 运费) / (0.81 - r)
+            const totalCost = costPrice + shippingFee + 1.5; // 加上中转费用
+            return totalCost / (0.81 - profitRate); // 0.81 = 1 - 0.07 - 0.12
         }
         
         // 计算保底利润推荐售价
@@ -417,8 +548,8 @@
             const settlementPrice = 0.81 * sellingPrice - 1.5 - shippingFee;
             // 实际利润 = 结算价格 - 成本价
             const actualProfit = settlementPrice - costPrice;
-            // 实际利润率 = 实际利润 / 成本价
-            return costPrice > 0 ? actualProfit / costPrice : 0;
+            // 实际利润率 = 实际利润 / 售卖价
+            return sellingPrice > 0 ? actualProfit / sellingPrice : 0;
         }
         
         // 保存历史记录
@@ -568,7 +699,7 @@
             const actualProfit = settlementPrice - costPrice;
             
             // 计算实际利润率
-            const actualProfitRate = costPrice > 0 ? actualProfit / costPrice : 0;
+            const actualProfitRate = settingPrice > 0 ? actualProfit / settingPrice : 0;
             
             // 计算利润20-30%的推荐售价
             const profit20Price = calculateProfitPrice(costPrice, shippingFee, 0.2);
@@ -647,7 +778,7 @@
             const actualProfit = settlementPrice - costPrice;
             
             // 计算实际利润率
-            const actualProfitRate = costPrice > 0 ? actualProfit / costPrice : 0;
+            const actualProfitRate = settingPrice > 0 ? actualProfit / settingPrice : 0;
             
             // 计算利润20-30%的推荐售价
             const profit20Price = calculateProfitPrice(costPrice, shippingFee, 0.2);
@@ -725,6 +856,13 @@
                 historyList.style.display = 'none';
                 toggleButton.textContent = '展开';
             }
+        }
+        
+        // 填充设置售价
+        function fillSettingPrice(price) {
+            document.getElementById('settingPrice').value = price.toFixed(2);
+            // 重新计算
+            calculate();
         }
         
         // 页面加载时显示历史记录
