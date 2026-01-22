@@ -141,43 +141,102 @@
             border-radius: 4px;
             border-left: 4px solid #2196f3;
         }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-            
-            .container {
-                padding: 15px;
-            }
-            
-            .content-wrapper {
-                flex-direction: column;
-            }
-            
-            .form-section, 
-            .results-wrapper,
-            .results-section {
-                min-width: 100%;
-            }
-            
-            h1 {
-                font-size: 24px;
-                margin-bottom: 20px;
-            }
-            
-            .result-row {
-                flex-direction: column;
-                gap: 5px;
-            }
-            
-            .result-label {
-                margin-bottom: 2px;
-            }
-            
-            .result-value {
-                text-align: right;
-            }
+        
+        /* 小灯泡提示样式 */
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        
+        .tooltip-icon {
+            width: 20px;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            color: #666;
+            border: 1px solid #ddd;
+            transition: all 0.2s ease;
+        }
+        
+        .tooltip-icon:hover {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+            color: #2196f3;
+        }
+        
+        .tooltip-content {
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            min-width: 200px;
+            max-width: 400px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        .tooltip-container:hover .tooltip-content {
+            display: block;
+        }
+        
+        .tooltip-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #333 transparent transparent transparent;
+        }
+        
+        .formula-input {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 12px;
+            font-family: monospace;
+        }
+        
+        .save-formula-btn {
+            margin-top: 5px;
+            padding: 3px 8px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+        
+        .save-formula-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .result-with-tooltip {
+            display: flex;
+            align-items: center;
+        }
+        
+        .result-value {
+            color: #333;
+            min-width: 100px;
         }
     </style>
 </head>
@@ -220,20 +279,40 @@
                 <div class="form-group">
                     <label for="targetProfitRate">目标利润率 (%)</label>
                     <input type="number" id="targetProfitRate" step="1" min="1" max="100" value="30" placeholder="请输入目标利润率">
+                </div>
+                
+                <div class="form-group">
+                    <label for="minProfit">保底利润 (CNY)</label>
+                    <input type="number" id="minProfit" step="0.01" min="0" value="1" placeholder="请输入保底利润">
                     
                     <div style="margin-top: 10px; padding: 10px; background-color: #f9f9f9; border-radius: 4px;">
                         <h4 style="margin-bottom: 10px; color: #333;">推荐售价</h4>
                         <div style="margin-bottom: 5px;">
                             <span style="font-weight: bold;">20%利润:</span>
-                            <span id="profit20Price" style="margin-left: 10px;">-</span> CNY
+                            <span style="cursor: pointer; text-decoration: underline; color: #2196F3; margin-left: 10px;" onclick="fillSettingPrice(parseFloat(document.getElementById('profit20Price').textContent))"><span id="profit20Price">-</span> CNY</span>
                         </div>
                         <div style="margin-bottom: 5px;">
                             <span style="font-weight: bold;">30%利润:</span>
-                            <span id="profit30Price" style="margin-left: 10px;">-</span> CNY
+                            <span style="cursor: pointer; text-decoration: underline; color: #2196F3; margin-left: 10px;" onclick="fillSettingPrice(parseFloat(document.getElementById('profit30Price').textContent))"><span id="profit30Price">-</span> CNY</span>
                         </div>
                         <div style="margin-bottom: 5px;">
                             <span style="font-weight: bold;">目标利润:</span>
-                            <span id="targetProfitPrice" style="margin-left: 10px;">-</span> CNY
+                            <span style="cursor: pointer; text-decoration: underline; color: #2196F3; margin-left: 10px;" onclick="fillSettingPrice(parseFloat(document.getElementById('targetProfitPrice').textContent))"><span id="targetProfitPrice">-</span> CNY</span>
+                        </div>
+                        <div style="margin-bottom: 5px;">
+                            <span style="font-weight: bold;">保底利润:</span>
+                            <div class="result-with-tooltip">
+                                <span style="cursor: pointer; text-decoration: underline; color: #2196F3; margin-left: 10px;" onclick="fillSettingPrice(parseFloat(document.getElementById('minProfitPrice').textContent))"><span id="minProfitPrice">-</span> CNY</span>
+                                <div class="tooltip-container">
+                                    <div class="tooltip-icon">i</div>
+                                    <div class="tooltip-content">
+                                        <div><strong>计算公式:</strong></div>
+                                        <div>保底利润售价 = (成本价 + 保底利润 + 运费) / 0.94</div>
+                                        <div>0.94 = 1 - 0.05 - 0.01</div>
+                                        <div><small>点击价格自动填充到设置售价</small></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -248,34 +327,100 @@
                     
                     <div class="result-row">
                         <span class="result-label">结算金额 (CNY):</span>
-                        <span class="result-value" id="settlementPrice">-</span>
+                        <div class="result-with-tooltip">
+                            <span class="result-value" id="settlementPrice">-</span>
+                            <div class="tooltip-container">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>结算金额 = 设置售卖价 - 设置售卖价×0.05 - 设置售卖价×0.01 - 运费</div>
+                                    <input type="text" class="formula-input" id="settlementPriceFormula" value="sellingPrice - sellingPrice * 0.05 - sellingPrice * 0.01 - shippingFee" placeholder="输入公式">
+                                    <button class="save-formula-btn" onclick="saveFormula('settlementPrice')">保存</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="result-row">
                         <span class="result-label">利润 (CNY):</span>
-                        <span class="result-value" id="profit">-</span>
+                        <div class="result-with-tooltip">
+                            <span class="result-value" id="profit">-</span>
+                            <div class="tooltip-container">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>利润 = 结算金额 - 成本价</div>
+                                    <input type="text" class="formula-input" id="profitFormula" value="settlementPrice - costPrice" placeholder="输入公式">
+                                    <button class="save-formula-btn" onclick="saveFormula('profit')">保存</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="result-row">
                         <span class="result-label">利润率 (%):</span>
-                        <span class="result-value" id="profitRate">-</span>
+                        <div class="result-with-tooltip">
+                            <span class="result-value" id="profitRate">-</span>
+                            <div class="tooltip-container">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>利润率 = 利润 / 售卖价</div>
+                                    <input type="text" class="formula-input" id="profitRateFormula" value="sellingPrice > 0 ? profit / sellingPrice : 0" placeholder="输入公式">
+                                    <button class="save-formula-btn" onclick="saveFormula('profitRate')">保存</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="result-row">
                         <span class="result-label">京东同行利润率 (%):</span>
-                        <span class="result-value" id="jdProfitRate">-</span>
+                        <div class="result-with-tooltip">
+                            <span class="result-value" id="jdProfitRate">-</span>
+                            <div class="tooltip-container">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>京东同行利润率 = (京东同行结算金额 - 成本价) / 京东同行售卖价</div>
+                                    <div>京东同行结算金额 = 京东同行售卖价 - 京东同行售卖价×0.05 - 京东同行售卖价×0.01 - 运费</div>
+                                    <input type="text" class="formula-input" id="jdProfitRateFormula" value="jdPrice > 0 ? (calculateSettlementPrice(jdPrice, shippingFee) - costPrice) / jdPrice : 0" placeholder="输入公式">
+                                    <button class="save-formula-btn" onclick="saveFormula('jdProfitRate')">保存</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="result-row">
                         <span class="result-label">过期日期:</span>
-                        <span class="result-value" id="expiryDate">-</span>
+                        <div class="result-with-tooltip">
+                            <span class="result-value" id="expiryDate">-</span>
+                            <div class="tooltip-container">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>过期日期 = 货源日期 + 保质期(月)</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="profit-30-section">
                         <h4 style="margin-bottom: 10px; color: #1976d2;">目标利润率计算</h4>
                         <div style="margin-bottom: 5px;">
                             <span style="font-weight: bold;">当利润率达到30%时，售价需要设置为:</span>
-                            <span id="targetPrice30" style="margin-left: 10px;">-</span> CNY
+                            <div class="result-with-tooltip">
+                                <span style="cursor: pointer; text-decoration: underline; color: #2196F3; margin-left: 10px;" onclick="fillSettingPrice(parseFloat(document.getElementById('targetPrice30').textContent))"><span id="targetPrice30">-</span> CNY</span>
+                                <div class="tooltip-container">
+                                    <div class="tooltip-icon">i</div>
+                                    <div class="tooltip-content">
+                                        <div><strong>计算公式:</strong></div>
+                                        <div>目标售价 = (成本价 × (1 + 目标利润率) + 运费) / 0.94</div>
+                                        <input type="text" class="formula-input" id="targetPrice30Formula" value="(costPrice * (1 + 0.3) + shippingFee) / 0.94" placeholder="输入公式">
+                                        <button class="save-formula-btn" onclick="saveFormula('targetPrice30')">保存</button>
+                                        <div><small>点击价格自动填充到设置售价</small></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -311,23 +456,34 @@
         }
         
         // 计算利润率
-        function calculateProfitRate(profit, costPrice) {
-            // 利润率=利润/成本价
-            return costPrice > 0 ? profit / costPrice : 0;
+        function calculateProfitRate(profit, sellingPrice) {
+            // 利润率=利润/售卖价
+            return sellingPrice > 0 ? profit / sellingPrice : 0;
         }
         
         // 计算当利润率达到30%时的售价
         function calculateTargetPrice(costPrice, shippingFee, targetProfitRate) {
             // 推导公式：
-            // 利润率 = (结算金额 - 成本价) / 成本价 = r
+            // 利润率 = (结算金额 - 成本价) / 售卖价 = r
             // 结算金额 = P - 0.05P - 0.01P - 运费 = 0.94P - 运费
-            // 代入得：(0.94P - 运费 - 成本价) / 成本价 = r
-            // 解得：P = (成本价 × (1 + r) + 运费) / 0.94
-            return (costPrice * (1 + targetProfitRate) + shippingFee) / 0.94;
+            // 代入得：(0.94P - 运费 - 成本价) / P = r
+            // 解得：P = (成本价 + 运费) / (0.94 - r)
+            return (costPrice + shippingFee) / (0.94 - targetProfitRate);
+        }
+        
+        // 计算保底利润推荐售价
+        function calculateMinProfitPrice(costPrice, shippingFee, minProfit) {
+            // 推导公式：
+            // 实际利润 = 结算价格 - 成本价 = 保底利润
+            // 结算价格 = P - 0.05P - 0.01P - 运费 = 0.94P - 运费
+            // 代入得：0.94P - 运费 - 成本价 = 保底利润
+            // 解得：P = (成本价 + 保底利润 + 运费) / 0.94
+            const totalCost = costPrice + minProfit + shippingFee;
+            return totalCost / 0.94; // 0.94 = 1 - 0.05 - 0.01
         }
         
         // 保存历史记录
-        function saveHistory(costPrice, shippingFee, sellingPrice, jdPrice, targetProfitRate, sourceDate, validityPeriod, results) {
+        function saveHistory(costPrice, shippingFee, sellingPrice, jdPrice, targetProfitRate, minProfit, sourceDate, validityPeriod, results) {
             // 获取历史记录
             let history = JSON.parse(localStorage.getItem('buyerCalculatorHistory') || '[]');
             
@@ -341,6 +497,7 @@
                     sellingPrice,
                     jdPrice,
                     targetProfitRate,
+                    minProfit,
                     sourceDate,
                     validityPeriod
                 },
@@ -390,6 +547,8 @@
                             <div><strong>过期日期:</strong> ${item.results.expiryDate || '-'}</div>
                             <div><strong>利润:</strong> ${item.results.profit.toFixed(2)} CNY</div>
                             <div><strong>利润率:</strong> ${(item.results.profitRate * 100).toFixed(2)}%</div>
+                            <div><strong>保底利润:</strong> ${item.inputs.minProfit || '1.00'} CNY</div>
+                            <div><strong>保底利润售价:</strong> ${item.results.minProfitPrice ? item.results.minProfitPrice.toFixed(2) : '-'} CNY</div>
                         </div>
                     </div>
                 `;
@@ -427,6 +586,7 @@
             document.getElementById('sellingPrice').value = inputs.sellingPrice;
             document.getElementById('jdPrice').value = inputs.jdPrice;
             document.getElementById('targetProfitRate').value = inputs.targetProfitRate;
+            document.getElementById('minProfit').value = inputs.minProfit || 1;
             document.getElementById('sourceDate').value = inputs.sourceDate || '';
             document.getElementById('validityPeriod').value = inputs.validityPeriod || '';
             
@@ -452,7 +612,7 @@
             const profit = calculateProfit(settlementPrice, costPrice);
             
             // 计算利润率
-            const profitRate = calculateProfitRate(profit, costPrice);
+            const profitRate = calculateProfitRate(profit, sellingPrice);
             
             // 计算京东同行的结算金额
             const jdSettlementPrice = calculateSettlementPrice(jdPrice, shippingFee);
@@ -461,12 +621,16 @@
             const jdProfit = calculateProfit(jdSettlementPrice, costPrice);
             
             // 计算京东同行的利润率
-            const jdProfitRate = calculateProfitRate(jdProfit, costPrice);
+            const jdProfitRate = calculateProfitRate(jdProfit, jdPrice);
             
             // 计算不同利润率对应的售价
             const profit20Price = calculateTargetPrice(costPrice, shippingFee, 0.2);
             const profit30Price = calculateTargetPrice(costPrice, shippingFee, 0.3);
             const customTargetPrice = calculateTargetPrice(costPrice, shippingFee, targetProfitRate / 100);
+            
+            // 计算保底利润对应的售价
+            const minProfit = parseFloat(document.getElementById('minProfit').value) || 1;
+            const minProfitPrice = calculateMinProfitPrice(costPrice, shippingFee, minProfit);
             
             // 计算过期日期
             let expiryDate = '-';
@@ -485,14 +649,18 @@
                 profit20Price,
                 profit30Price,
                 customTargetPrice,
+                minProfitPrice,
                 expiryDate
             };
-            
-            saveHistory(costPrice, shippingFee, sellingPrice, jdPrice, targetProfitRate, sourceDate, validityPeriod, results);
+            // 保存历史记录
+            saveHistory(costPrice, shippingFee, sellingPrice, jdPrice, targetProfitRate, minProfit, sourceDate, validityPeriod, results);
             
             // 显示保存成功提示
             alert('记录保存成功！');
         }
+        
+        // 存储自定义公式
+        let customFormulas = JSON.parse(localStorage.getItem('buyerCustomFormulas') || '{}');
         
         // 主计算函数
         function calculate() {
@@ -506,13 +674,31 @@
             const validityPeriod = parseFloat(document.getElementById('validityPeriod').value) || 0;
             
             // 计算结算金额
-            const settlementPrice = calculateSettlementPrice(sellingPrice, shippingFee);
+            let settlementPrice;
+            try {
+                const settlementPriceFormula = customFormulas.settlementPrice || 'sellingPrice - sellingPrice * 0.05 - sellingPrice * 0.01 - shippingFee';
+                settlementPrice = eval(settlementPriceFormula);
+            } catch (e) {
+                settlementPrice = calculateSettlementPrice(sellingPrice, shippingFee);
+            }
             
             // 计算利润
-            const profit = calculateProfit(settlementPrice, costPrice);
+            let profit;
+            try {
+                const profitFormula = customFormulas.profit || 'settlementPrice - costPrice';
+                profit = eval(profitFormula);
+            } catch (e) {
+                profit = calculateProfit(settlementPrice, costPrice);
+            }
             
             // 计算利润率
-            const profitRate = calculateProfitRate(profit, costPrice);
+            let profitRate;
+            try {
+                const profitRateFormula = customFormulas.profitRate || 'sellingPrice > 0 ? profit / sellingPrice : 0';
+                profitRate = eval(profitRateFormula);
+            } catch (e) {
+                profitRate = calculateProfitRate(profit, sellingPrice);
+            }
             
             // 计算京东同行的结算金额
             const jdSettlementPrice = calculateSettlementPrice(jdPrice, shippingFee);
@@ -521,12 +707,28 @@
             const jdProfit = calculateProfit(jdSettlementPrice, costPrice);
             
             // 计算京东同行的利润率
-            const jdProfitRate = calculateProfitRate(jdProfit, costPrice);
+            let jdProfitRate;
+            try {
+                const jdProfitRateFormula = customFormulas.jdProfitRate || 'jdPrice > 0 ? (calculateSettlementPrice(jdPrice, shippingFee) - costPrice) / jdPrice : 0';
+                jdProfitRate = eval(jdProfitRateFormula);
+            } catch (e) {
+                jdProfitRate = calculateProfitRate(jdProfit, jdPrice);
+            }
             
             // 计算不同利润率对应的售价
             const profit20Price = calculateTargetPrice(costPrice, shippingFee, 0.2);
-            const profit30Price = calculateTargetPrice(costPrice, shippingFee, 0.3);
+            let profit30Price;
+            try {
+                const targetPrice30Formula = customFormulas.targetPrice30 || '(costPrice * (1 + 0.3) + shippingFee) / 0.94';
+                profit30Price = eval(targetPrice30Formula);
+            } catch (e) {
+                profit30Price = calculateTargetPrice(costPrice, shippingFee, 0.3);
+            }
             const customTargetPrice = calculateTargetPrice(costPrice, shippingFee, targetProfitRate / 100);
+            
+            // 计算保底利润对应的售价
+            const minProfit = parseFloat(document.getElementById('minProfit').value) || 1;
+            const minProfitPrice = calculateMinProfitPrice(costPrice, shippingFee, minProfit);
             
             // 计算过期时间
             let expiryDate = '-';
@@ -545,7 +747,31 @@
             document.getElementById('profit20Price').textContent = profit20Price.toFixed(2);
             document.getElementById('profit30Price').textContent = profit30Price.toFixed(2);
             document.getElementById('targetProfitPrice').textContent = customTargetPrice.toFixed(2);
+            document.getElementById('minProfitPrice').textContent = minProfitPrice.toFixed(2);
             document.getElementById('expiryDate').textContent = expiryDate;
+        }
+        
+        // 保存公式
+        function saveFormula(type) {
+            const formulaInput = document.getElementById(type + 'Formula');
+            if (formulaInput) {
+                const formula = formulaInput.value;
+                customFormulas[type] = formula;
+                localStorage.setItem('buyerCustomFormulas', JSON.stringify(customFormulas));
+                alert('公式保存成功！');
+                // 重新计算
+                calculate();
+            }
+        }
+        
+        // 加载保存的公式
+        function loadSavedFormulas() {
+            Object.keys(customFormulas).forEach(type => {
+                const formulaInput = document.getElementById(type + 'Formula');
+                if (formulaInput) {
+                    formulaInput.value = customFormulas[type];
+                }
+            });
         }
         
         // 切换历史记录的显示/隐藏
@@ -564,9 +790,17 @@
             }
         }
         
+        // 填充设置售价
+        function fillSettingPrice(price) {
+            document.getElementById('sellingPrice').value = price.toFixed(2);
+            // 重新计算
+            calculate();
+        }
+        
         // 页面加载时显示历史记录
         window.onload = function() {
             displayHistory();
+            loadSavedFormulas();
         };
     </script>
 </body>
