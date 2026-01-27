@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="方楠 向日葵信息科技有限公司">
     <title>Ozon 成本计算器</title>
     <style>
         * {
@@ -338,10 +339,20 @@
                                 <div class="tooltip-icon">i</div>
                                 <div class="tooltip-content">
                                     <div><strong>计算公式:</strong></div>
-                                    <div>结算价格 = 设置售价 - 设置售价×0.07 - 1.5 - 运费 - 设置售价×0.12</div>
-                                    <div>0.07: 平台佣金</div>
-                                    <div>1.5: 中转费用</div>
-                                    <div>0.12: 其他费用</div>
+                                    <div>结算价格 = 设置售价 - 设置售价×平台佣金 - 中转费用 - 运费 - 设置售价×其他费用</div>
+                                    <div style="margin-top: 10px;">
+                                        <label style="font-size: 12px;">平台佣金:</label>
+                                        <input type="number" step="0.01" min="0" max="1" id="platformCommission" value="0.07" style="width: 80px; height: 20px; margin-left: 10px; font-size: 12px; padding: 2px 4px;">
+                                    </div>
+                                    <div style="margin-top: 5px;">
+                                        <label style="font-size: 12px;">中转费用:</label>
+                                        <input type="number" step="0.01" min="0" id="transferFee" value="1.5" style="width: 80px; height: 20px; margin-left: 10px; font-size: 12px; padding: 2px 4px;">
+                                    </div>
+                                    <div style="margin-top: 5px;">
+                                        <label style="font-size: 12px;">其他费用:</label>
+                                        <input type="number" step="0.01" min="0" max="1" id="otherFee" value="0.12" style="width: 80px; height: 20px; margin-left: 10px; font-size: 12px; padding: 2px 4px;">
+                                    </div>
+                                    <button class="save-formula-btn" onclick="saveFormula('settlementPrice')" style="margin-top: 10px; height: 24px; font-size: 12px; padding: 2px 8px;">保存</button>
                                 </div>
                             </div>
                         </div>
@@ -370,6 +381,34 @@
                                 <div class="tooltip-content">
                                     <div><strong>计算公式:</strong></div>
                                     <div>实际利润率 = 实际利润 / 售卖价</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-row">
+                        <span class="result-label">跟卖原价 (CNY):</span>
+                        <div class="result-with-tooltip">
+                            <span class="result-value" id="followSellOriginalPrice">-</span>
+                            <div class="tooltip-container">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>跟卖原价 = 设置售价 × 120%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-row">
+                        <span class="result-label">跟卖最低价格 (CNY):</span>
+                        <div class="result-with-tooltip">
+                            <span class="result-value" id="followSellMinPrice">-</span>
+                            <div class="tooltip-container">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>跟卖最低价格 = 设置售价 × 70%</div>
                                 </div>
                             </div>
                         </div>
@@ -498,6 +537,9 @@
         // 汇率：1 卢布 = 0.08 人民币（可根据实际情况调整）
         const EXCHANGE_RATE = 0.088671;
         
+        // 存储自定义参数
+        let customParams = JSON.parse(localStorage.getItem('ozonCustomParams') || '{}');
+        
         // 运费计算公式
         function calculateShippingFee(logistics, weight) {
             switch(logistics) {
@@ -522,30 +564,44 @@
         
         // 计算利润20-30%的推荐售价
         function calculateProfitPrice(costPrice, shippingFee, profitRate) {
+            // 获取用户设置的参数值
+            const platformCommission = parseFloat(document.getElementById('platformCommission').value) || 0.07;
+            const transferFee = parseFloat(document.getElementById('transferFee').value) || 1.5;
+            const otherFee = parseFloat(document.getElementById('otherFee').value) || 0.12;
+            const feeRatio = 1 - platformCommission - otherFee;
             // 推导公式：
             // 实际利润率 = (结算价格 - 成本价) / 售卖价 = r
-            // 结算价格 = P - 0.07P - 1.5 - 运费 - 0.12P = 0.81P - 1.5 - 运费
-            // 代入得：(0.81P - 1.5 - 运费 - 成本价) / P = r
-            // 解得：P = (成本价 + 1.5 + 运费) / (0.81 - r)
-            const totalCost = costPrice + shippingFee + 1.5; // 加上中转费用
-            return totalCost / (0.81 - profitRate); // 0.81 = 1 - 0.07 - 0.12
+            // 结算价格 = P - platformCommission*P - transferFee - 运费 - otherFee*P = feeRatio*P - transferFee - 运费
+            // 代入得：(feeRatio*P - transferFee - 运费 - 成本价) / P = r
+            // 解得：P = (成本价 + transferFee + 运费) / (feeRatio - r)
+            const totalCost = costPrice + shippingFee + transferFee; // 加上中转费用
+            return totalCost / (feeRatio - profitRate);
         }
         
         // 计算保底利润推荐售价
         function calculateMinProfitPrice(costPrice, shippingFee, minProfit) {
+            // 获取用户设置的参数值
+            const platformCommission = parseFloat(document.getElementById('platformCommission').value) || 0.07;
+            const transferFee = parseFloat(document.getElementById('transferFee').value) || 1.5;
+            const otherFee = parseFloat(document.getElementById('otherFee').value) || 0.12;
+            const feeRatio = 1 - platformCommission - otherFee;
             // 推导公式：
             // 实际利润 = 结算价格 - 成本价 = 保底利润
-            // 结算价格 = P - 0.07P - 1.5 - 运费 - 0.12P = 0.81P - 1.5 - 运费
-            // 代入得：0.81P - 1.5 - 运费 - 成本价 = 保底利润
-            // 解得：P = (成本价 + 保底利润 + 1.5 + 运费) / 0.81
-            const totalCost = costPrice + minProfit + shippingFee + 1.5; // 加上中转费用
-            return totalCost / 0.81; // 0.81 = 1 - 0.07 - 0.12
+            // 结算价格 = P - platformCommission*P - transferFee - 运费 - otherFee*P = feeRatio*P - transferFee - 运费
+            // 代入得：feeRatio*P - transferFee - 运费 - 成本价 = 保底利润
+            // 解得：P = (成本价 + 保底利润 + transferFee + 运费) / feeRatio
+            const totalCost = costPrice + minProfit + shippingFee + transferFee; // 加上中转费用
+            return totalCost / feeRatio;
         }
         
         // 计算利润率
         function calculateProfitRate(sellingPrice, costPrice, shippingFee) {
-            // 结算价格 = P - 0.07P - 1.5 - 运费 - 0.12P = 0.81P - 1.5 - 运费
-            const settlementPrice = 0.81 * sellingPrice - 1.5 - shippingFee;
+            // 获取用户设置的参数值
+            const platformCommission = parseFloat(document.getElementById('platformCommission').value) || 0.07;
+            const transferFee = parseFloat(document.getElementById('transferFee').value) || 1.5;
+            const otherFee = parseFloat(document.getElementById('otherFee').value) || 0.12;
+            // 结算价格 = P - platformCommission*P - transferFee - 运费 - otherFee*P
+            const settlementPrice = sellingPrice - sellingPrice * platformCommission - transferFee - shippingFee - sellingPrice * otherFee;
             // 实际利润 = 结算价格 - 成本价
             const actualProfit = settlementPrice - costPrice;
             // 实际利润率 = 实际利润 / 售卖价
@@ -693,13 +749,20 @@
             const shippingFee = calculateShippingFee(logistics, weight);
             
             // 计算结算价格
-            const settlementPrice = settingPrice - (settingPrice * 0.07) - 1.5 - shippingFee - (settingPrice * 0.12);
+            const platformCommission = parseFloat(document.getElementById('platformCommission').value) || 0.07;
+            const transferFee = parseFloat(document.getElementById('transferFee').value) || 1.5;
+            const otherFee = parseFloat(document.getElementById('otherFee').value) || 0.12;
+            const settlementPrice = settingPrice - (settingPrice * platformCommission) - transferFee - shippingFee - (settingPrice * otherFee);
             
             // 计算实际利润
             const actualProfit = settlementPrice - costPrice;
             
             // 计算实际利润率
             const actualProfitRate = settingPrice > 0 ? actualProfit / settingPrice : 0;
+            
+            // 计算跟卖原价和跟卖最低价格
+            const followSellOriginalPrice = settingPrice * 1.2;
+            const followSellMinPrice = settingPrice * 0.7;
             
             // 计算利润20-30%的推荐售价
             const profit20Price = calculateProfitPrice(costPrice, shippingFee, 0.2);
@@ -724,6 +787,8 @@
                 settlementPrice,
                 actualProfit,
                 actualProfitRate,
+                followSellOriginalPrice,
+                followSellMinPrice,
                 profit20Price,
                 profit30Price,
                 targetProfitPrice,
@@ -772,13 +837,20 @@
             const shippingFee = calculateShippingFee(logistics, weight);
             
             // 计算结算价格
-            const settlementPrice = settingPrice - (settingPrice * 0.07) - 1.5 - shippingFee - (settingPrice * 0.12);
+            const platformCommission = parseFloat(document.getElementById('platformCommission').value) || 0.07;
+            const transferFee = parseFloat(document.getElementById('transferFee').value) || 1.5;
+            const otherFee = parseFloat(document.getElementById('otherFee').value) || 0.12;
+            const settlementPrice = settingPrice - (settingPrice * platformCommission) - transferFee - shippingFee - (settingPrice * otherFee);
             
             // 计算实际利润
             const actualProfit = settlementPrice - costPrice;
             
             // 计算实际利润率
             const actualProfitRate = settingPrice > 0 ? actualProfit / settingPrice : 0;
+            
+            // 计算跟卖原价和跟卖最低价格
+            const followSellOriginalPrice = settingPrice * 1.2;
+            const followSellMinPrice = settingPrice * 0.7;
             
             // 计算利润20-30%的推荐售价
             const profit20Price = calculateProfitPrice(costPrice, shippingFee, 0.2);
@@ -822,6 +894,8 @@
             document.getElementById('settlementPrice').textContent = settlementPrice.toFixed(2);
             document.getElementById('actualProfit').textContent = actualProfit.toFixed(2);
             document.getElementById('actualProfitRate').textContent = (actualProfitRate * 100).toFixed(2);
+            document.getElementById('followSellOriginalPrice').textContent = followSellOriginalPrice.toFixed(2);
+            document.getElementById('followSellMinPrice').textContent = followSellMinPrice.toFixed(2);
             document.getElementById('profit20Price').textContent = profit20Price.toFixed(2);
             document.getElementById('profit30Price').textContent = profit30Price.toFixed(2);
             document.getElementById('targetProfitPrice').textContent = targetProfitPrice.toFixed(2);
@@ -865,10 +939,47 @@
             calculate();
         }
         
-        // 页面加载时显示历史记录
+        // 保存参数
+        function saveFormula(type) {
+            // 保存平台佣金、中转费用和其他费用
+            const platformCommission = parseFloat(document.getElementById('platformCommission').value) || 0.07;
+            const transferFee = parseFloat(document.getElementById('transferFee').value) || 1.5;
+            const otherFee = parseFloat(document.getElementById('otherFee').value) || 0.12;
+            
+            customParams.platformCommission = platformCommission;
+            customParams.transferFee = transferFee;
+            customParams.otherFee = otherFee;
+            
+            localStorage.setItem('ozonCustomParams', JSON.stringify(customParams));
+            alert('参数保存成功！');
+            // 重新计算
+            calculate();
+        }
+        
+        // 加载保存的参数
+        function loadSavedParams() {
+            // 加载平台佣金、中转费用和其他费用
+            if (customParams.platformCommission) {
+                document.getElementById('platformCommission').value = customParams.platformCommission;
+            }
+            if (customParams.transferFee) {
+                document.getElementById('transferFee').value = customParams.transferFee;
+            }
+            if (customParams.otherFee) {
+                document.getElementById('otherFee').value = customParams.otherFee;
+            }
+        }
+        
+        // 页面加载时显示历史记录和加载保存的参数
         window.onload = function() {
             displayHistory();
+            loadSavedParams();
         };
     </script>
+    
+    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 14px; color: #666;">
+        <p>作者：方楠</p>
+        <p>向日葵信息科技有限公司</p>
+    </div>
 </body>
 </html>
