@@ -253,7 +253,7 @@
                 
                 <div class="form-group">
                     <label for="shippingFee">运费 (CNY)</label>
-                    <input type="number" id="shippingFee" step="0.01" value="14" placeholder="请输入运费">
+                    <input type="number" id="shippingFee" step="0.01" value="16" placeholder="请输入运费">
                 </div>
                 
                 <div class="form-group">
@@ -307,8 +307,7 @@
                                     <div class="tooltip-icon">i</div>
                                     <div class="tooltip-content">
                                         <div><strong>计算公式:</strong></div>
-                                        <div>保底利润售价 = (成本价 + 保底利润 + 运费) / 0.94</div>
-                                        <div>0.94 = 1 - 0.05 - 0.01</div>
+                                        <div>保底利润售价 = (成本价 + 保底利润 + 运费) / (1 - 佣金比例 - 其他费用比例)</div>
                                         <div><small>点击价格自动填充到设置售价</small></div>
                                     </div>
                                 </div>
@@ -333,9 +332,12 @@
                                 <div class="tooltip-icon">i</div>
                                 <div class="tooltip-content">
                                     <div><strong>计算公式:</strong></div>
-                                    <div>结算金额 = 设置售卖价 - 设置售卖价×0.05 - 设置售卖价×0.01 - 运费</div>
-                                    <input type="text" class="formula-input" id="settlementPriceFormula" value="sellingPrice - sellingPrice * 0.05 - sellingPrice * 0.01 - shippingFee" placeholder="输入公式">
-                                    <button class="save-formula-btn" onclick="saveFormula('settlementPrice')">保存</button>
+                                    <div>结算金额 = 设置售卖价 - 设置售卖价×佣金比例 - 运费 - 客服成本 - 人员成本 - 投流成本</div>
+                                    <div style="margin-top: 10px;">
+                                        <label style="font-size: 12px;">佣金比例:</label>
+                                        <input type="number" step="0.01" min="0" max="1" id="commissionRate" value="0.06" style="width: 80px; height: 20px; margin-left: 10px; font-size: 12px; padding: 2px 4px;">
+                                    </div>
+                                    <button class="save-formula-btn" onclick="saveFormula('settlementPrice')" style="margin-top: 10px; height: 24px; font-size: 12px; padding: 2px 8px;">保存</button>
                                 </div>
                             </div>
                         </div>
@@ -350,8 +352,6 @@
                                 <div class="tooltip-content">
                                     <div><strong>计算公式:</strong></div>
                                     <div>利润 = 结算金额 - 成本价</div>
-                                    <input type="text" class="formula-input" id="profitFormula" value="settlementPrice - costPrice" placeholder="输入公式">
-                                    <button class="save-formula-btn" onclick="saveFormula('profit')">保存</button>
                                 </div>
                             </div>
                         </div>
@@ -366,8 +366,6 @@
                                 <div class="tooltip-content">
                                     <div><strong>计算公式:</strong></div>
                                     <div>利润率 = 利润 / 售卖价</div>
-                                    <input type="text" class="formula-input" id="profitRateFormula" value="sellingPrice > 0 ? profit / sellingPrice : 0" placeholder="输入公式">
-                                    <button class="save-formula-btn" onclick="saveFormula('profitRate')">保存</button>
                                 </div>
                             </div>
                         </div>
@@ -382,9 +380,7 @@
                                 <div class="tooltip-content">
                                     <div><strong>计算公式:</strong></div>
                                     <div>京东同行利润率 = (京东同行结算金额 - 成本价) / 京东同行售卖价</div>
-                                    <div>京东同行结算金额 = 京东同行售卖价 - 京东同行售卖价×0.05 - 京东同行售卖价×0.01 - 运费</div>
-                                    <input type="text" class="formula-input" id="jdProfitRateFormula" value="jdPrice > 0 ? (calculateSettlementPrice(jdPrice, shippingFee) - costPrice) / jdPrice : 0" placeholder="输入公式">
-                                    <button class="save-formula-btn" onclick="saveFormula('jdProfitRate')">保存</button>
+                                    <div>京东同行结算金额 = 京东同行售卖价 - 京东同行售卖价×佣金比例 - 运费 - 客服成本 - 人员成本 - 投流成本</div>
                                 </div>
                             </div>
                         </div>
@@ -414,9 +410,7 @@
                                     <div class="tooltip-icon">i</div>
                                     <div class="tooltip-content">
                                         <div><strong>计算公式:</strong></div>
-                                        <div>目标售价 = (成本价 × (1 + 目标利润率) + 运费) / 0.94</div>
-                                        <input type="text" class="formula-input" id="targetPrice30Formula" value="(costPrice * (1 + 0.3) + shippingFee) / 0.94" placeholder="输入公式">
-                                        <button class="save-formula-btn" onclick="saveFormula('targetPrice30')">保存</button>
+                                        <div>目标售价 = (成本价 + 运费 + 客服成本 + 人员成本 + 投流成本) / (1 - 佣金比例 - 目标利润率)</div>
                                         <div><small>点击价格自动填充到设置售价</small></div>
                                     </div>
                                 </div>
@@ -445,8 +439,16 @@
     <script>
         // 计算结算金额
         function calculateSettlementPrice(sellingPrice, shippingFee) {
-            // 结算金额=设置售卖价-设置售卖价*0.05-设置售卖价*0.01-运费
-            return sellingPrice - sellingPrice * 0.05 - sellingPrice * 0.01 - shippingFee;
+            // 获取用户设置的比例值
+            const commissionRate = parseFloat(document.getElementById('commissionRate').value) || 0.06;
+            // 固定成本
+            const customerServiceFee = 8; // 客服成本
+            const personnelFee = 20; // 人员成本
+            const marketingFee = 9; // 投流成本
+            // 平台佣金：售卖价*6%
+            const commissionFee = sellingPrice * commissionRate;
+            // 结算金额=设置售卖价-平台佣金-运费-客服成本-人员成本-投流成本
+            return sellingPrice - commissionFee - shippingFee - customerServiceFee - personnelFee - marketingFee;
         }
         
         // 计算利润
@@ -461,25 +463,39 @@
             return sellingPrice > 0 ? profit / sellingPrice : 0;
         }
         
-        // 计算当利润率达到30%时的售价
+        // 计算当利润率达到目标值时的售价
         function calculateTargetPrice(costPrice, shippingFee, targetProfitRate) {
+            // 获取用户设置的比例值
+            const commissionRate = parseFloat(document.getElementById('commissionRate').value) || 0.06;
+            // 固定成本
+            const customerServiceFee = 8; // 客服成本
+            const personnelFee = 20; // 人员成本
+            const marketingFee = 9; // 投流成本
+            const feeRatio = 1 - commissionRate;
             // 推导公式：
             // 利润率 = (结算金额 - 成本价) / 售卖价 = r
-            // 结算金额 = P - 0.05P - 0.01P - 运费 = 0.94P - 运费
-            // 代入得：(0.94P - 运费 - 成本价) / P = r
-            // 解得：P = (成本价 + 运费) / (0.94 - r)
-            return (costPrice + shippingFee) / (0.94 - targetProfitRate);
+            // 结算金额 = P - P*佣金比例 - 运费 - 客服成本 - 人员成本 - 投流成本
+            // 代入得：(P - P*佣金比例 - 运费 - 客服成本 - 人员成本 - 投流成本 - 成本价) / P = r
+            // 解得：P = (成本价 + 运费 + 客服成本 + 人员成本 + 投流成本) / (1 - 佣金比例 - r)
+            return (costPrice + shippingFee + customerServiceFee + personnelFee + marketingFee) / (feeRatio - targetProfitRate);
         }
         
         // 计算保底利润推荐售价
         function calculateMinProfitPrice(costPrice, shippingFee, minProfit) {
+            // 获取用户设置的比例值
+            const commissionRate = parseFloat(document.getElementById('commissionRate').value) || 0.06;
+            // 固定成本
+            const customerServiceFee = 8; // 客服成本
+            const personnelFee = 20; // 人员成本
+            const marketingFee = 9; // 投流成本
+            const feeRatio = 1 - commissionRate;
             // 推导公式：
             // 实际利润 = 结算价格 - 成本价 = 保底利润
-            // 结算价格 = P - 0.05P - 0.01P - 运费 = 0.94P - 运费
-            // 代入得：0.94P - 运费 - 成本价 = 保底利润
-            // 解得：P = (成本价 + 保底利润 + 运费) / 0.94
-            const totalCost = costPrice + minProfit + shippingFee;
-            return totalCost / 0.94; // 0.94 = 1 - 0.05 - 0.01
+            // 结算价格 = P - P*佣金比例 - 运费 - 客服成本 - 人员成本 - 投流成本
+            // 代入得：P - P*佣金比例 - 运费 - 客服成本 - 人员成本 - 投流成本 - 成本价 = 保底利润
+            // 解得：P = (成本价 + 保底利润 + 运费 + 客服成本 + 人员成本 + 投流成本) / (1 - 佣金比例)
+            const totalCost = costPrice + minProfit + shippingFee + customerServiceFee + personnelFee + marketingFee;
+            return totalCost / feeRatio;
         }
         
         // 保存历史记录
@@ -598,7 +614,7 @@
         function saveCurrentResult() {
             // 获取输入值
             const costPrice = parseFloat(document.getElementById('costPrice').value) || 0;
-            const shippingFee = parseFloat(document.getElementById('shippingFee').value) || 14;
+            const shippingFee = parseFloat(document.getElementById('shippingFee').value) || 16;
             const sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
             const jdPrice = parseFloat(document.getElementById('jdPrice').value) || 0;
             const targetProfitRate = parseFloat(document.getElementById('targetProfitRate').value) || 30;
@@ -659,14 +675,14 @@
             alert('记录保存成功！');
         }
         
-        // 存储自定义公式
-        let customFormulas = JSON.parse(localStorage.getItem('buyerCustomFormulas') || '{}');
+        // 存储自定义参数
+        let customParams = JSON.parse(localStorage.getItem('buyerCustomParams') || '{}');
         
         // 主计算函数
         function calculate() {
             // 获取输入值
             const costPrice = parseFloat(document.getElementById('costPrice').value) || 0;
-            const shippingFee = parseFloat(document.getElementById('shippingFee').value) || 14;
+            const shippingFee = parseFloat(document.getElementById('shippingFee').value) || 16;
             const sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
             const jdPrice = parseFloat(document.getElementById('jdPrice').value) || 0;
             const targetProfitRate = parseFloat(document.getElementById('targetProfitRate').value) || 30;
@@ -674,31 +690,13 @@
             const validityPeriod = parseFloat(document.getElementById('validityPeriod').value) || 0;
             
             // 计算结算金额
-            let settlementPrice;
-            try {
-                const settlementPriceFormula = customFormulas.settlementPrice || 'sellingPrice - sellingPrice * 0.05 - sellingPrice * 0.01 - shippingFee';
-                settlementPrice = eval(settlementPriceFormula);
-            } catch (e) {
-                settlementPrice = calculateSettlementPrice(sellingPrice, shippingFee);
-            }
+            const settlementPrice = calculateSettlementPrice(sellingPrice, shippingFee);
             
             // 计算利润
-            let profit;
-            try {
-                const profitFormula = customFormulas.profit || 'settlementPrice - costPrice';
-                profit = eval(profitFormula);
-            } catch (e) {
-                profit = calculateProfit(settlementPrice, costPrice);
-            }
+            const profit = calculateProfit(settlementPrice, costPrice);
             
             // 计算利润率
-            let profitRate;
-            try {
-                const profitRateFormula = customFormulas.profitRate || 'sellingPrice > 0 ? profit / sellingPrice : 0';
-                profitRate = eval(profitRateFormula);
-            } catch (e) {
-                profitRate = calculateProfitRate(profit, sellingPrice);
-            }
+            const profitRate = calculateProfitRate(profit, sellingPrice);
             
             // 计算京东同行的结算金额
             const jdSettlementPrice = calculateSettlementPrice(jdPrice, shippingFee);
@@ -707,23 +705,11 @@
             const jdProfit = calculateProfit(jdSettlementPrice, costPrice);
             
             // 计算京东同行的利润率
-            let jdProfitRate;
-            try {
-                const jdProfitRateFormula = customFormulas.jdProfitRate || 'jdPrice > 0 ? (calculateSettlementPrice(jdPrice, shippingFee) - costPrice) / jdPrice : 0';
-                jdProfitRate = eval(jdProfitRateFormula);
-            } catch (e) {
-                jdProfitRate = calculateProfitRate(jdProfit, jdPrice);
-            }
+            const jdProfitRate = calculateProfitRate(jdProfit, jdPrice);
             
             // 计算不同利润率对应的售价
             const profit20Price = calculateTargetPrice(costPrice, shippingFee, 0.2);
-            let profit30Price;
-            try {
-                const targetPrice30Formula = customFormulas.targetPrice30 || '(costPrice * (1 + 0.3) + shippingFee) / 0.94';
-                profit30Price = eval(targetPrice30Formula);
-            } catch (e) {
-                profit30Price = calculateTargetPrice(costPrice, shippingFee, 0.3);
-            }
+            const profit30Price = calculateTargetPrice(costPrice, shippingFee, 0.3);
             const customTargetPrice = calculateTargetPrice(costPrice, shippingFee, targetProfitRate / 100);
             
             // 计算保底利润对应的售价
@@ -751,27 +737,25 @@
             document.getElementById('expiryDate').textContent = expiryDate;
         }
         
-        // 保存公式
+        // 保存参数
         function saveFormula(type) {
-            const formulaInput = document.getElementById(type + 'Formula');
-            if (formulaInput) {
-                const formula = formulaInput.value;
-                customFormulas[type] = formula;
-                localStorage.setItem('buyerCustomFormulas', JSON.stringify(customFormulas));
-                alert('公式保存成功！');
-                // 重新计算
-                calculate();
-            }
+            // 保存佣金比例
+            const commissionRate = parseFloat(document.getElementById('commissionRate').value) || 0.05;
+            
+            customParams.commissionRate = commissionRate;
+            
+            localStorage.setItem('buyerCustomParams', JSON.stringify(customParams));
+            alert('参数保存成功！');
+            // 重新计算
+            calculate();
         }
         
-        // 加载保存的公式
+        // 加载保存的参数
         function loadSavedFormulas() {
-            Object.keys(customFormulas).forEach(type => {
-                const formulaInput = document.getElementById(type + 'Formula');
-                if (formulaInput) {
-                    formulaInput.value = customFormulas[type];
-                }
-            });
+            // 加载佣金比例
+            if (customParams.commissionRate) {
+                document.getElementById('commissionRate').value = customParams.commissionRate;
+            }
         }
         
         // 切换历史记录的显示/隐藏
