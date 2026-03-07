@@ -55,6 +55,92 @@
             gap: 30px;
         }
         
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .content-wrapper {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .form-section,
+            .results-section,
+            .results-wrapper {
+                min-width: 100%;
+            }
+            
+            .result-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .result-value {
+                min-width: auto;
+            }
+            
+            .calculate-btn {
+                padding: 12px;
+                font-size: 16px;
+            }
+            
+            .result-with-tooltip {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .tooltip-content {
+                min-width: 250px;
+                max-width: 300px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            input[type="number"], select {
+                padding: 8px;
+                font-size: 14px;
+            }
+            
+            .section-title {
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+            
+            .result-row {
+                padding: 8px;
+            }
+            
+            .calculate-btn {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+        
         h1 {
             text-align: center;
             color: #333;
@@ -234,6 +320,8 @@
                         <option value="cel_economy_extra_small">CEL Economy Extra Small</option>
                         <option value="china_post_pudo_standard">China Post to PUDO Standard</option>
                         <option value="cel_standard_budget">CEL Standard Budget</option>
+                        <option value="guoo_economy_extra_small">GUOO Economy Extra Small</option>
+                        <option value="guoo_standard_extra_small">GUOO Standard Extra Small</option>
                     </select>
                 </div>
                 
@@ -326,6 +414,8 @@
                                     <div>CEL Economy Extra Small: 3 + 克重 × 0.025</div>
                                     <div>China Post to PUDO Standard: 1.9 + 克重 × 0.067</div>
                                     <div>CEL Standard Budget: 23 + 克重 × 0.025</div>
+                                    <div>GUOO Economy Extra Small: 2.6 + 克重 × 0.025</div>
+                                    <div>GUOO Standard Extra Small: 3.04 + 克重 × 0.035</div>
                                 </div>
                             </div>
                         </div>
@@ -342,7 +432,7 @@
                                     <div>结算价格 = 设置售价 - 设置售价×平台佣金 - 中转费用 - 运费 - 设置售价×其他费用</div>
                                     <div style="margin-top: 10px;">
                                         <label style="font-size: 12px;">平台佣金:</label>
-                                        <input type="number" step="0.01" min="0" max="1" id="platformCommission" value="0.07" style="width: 80px; height: 20px; margin-left: 10px; font-size: 12px; padding: 2px 4px;">
+                                        <input type="number" step="0.01" min="0" max="1" id="platformCommission" value="0.15" style="width: 80px; height: 20px; margin-left: 10px; font-size: 12px; padding: 2px 4px;">
                                     </div>
                                     <div style="margin-top: 5px;">
                                         <label style="font-size: 12px;">中转费用:</label>
@@ -419,98 +509,98 @@
                     <div class="section-title">推荐售价</div>
                     
                     <div style="padding: 10px; background-color: #f9f9f9; border-radius: 4px; font-size: 14px;">
-                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: bold;">基础推荐:</span>
-                            <div style="display: flex; gap: 15px; align-items: center;">
-                                <div class="result-with-tooltip">
-                                    <span style="cursor: pointer; text-decoration: underline; color: #2196F3;" onclick="fillSettingPrice(parseFloat(document.getElementById('recommendedPrice').textContent))"><span id="recommendedPrice">-</span> CNY</span>
-                                    <div class="tooltip-container">
-                                        <div class="tooltip-icon">i</div>
-                                        <div class="tooltip-content">
-                                            <div><strong>计算公式:</strong></div>
-                                            <div>基础推荐售价 = 转换后人民币价格 × 设置指数</div>
-                                            <div><small>点击价格自动填充到设置售价</small></div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div style="margin-bottom: 10px;">
+                            <div style="margin-bottom: 3px; font-weight: bold;">基础推荐:</div>
+                            <div style="margin-bottom: 3px;">
+                                <span style="cursor: pointer; text-decoration: underline; color: #2196F3;" onclick="fillSettingPrice(parseFloat(document.getElementById('recommendedPrice').textContent))"><span id="recommendedPrice">-</span> CNY</span>
+                            </div>
+                            <div style="font-size: 12px; display: flex; flex-wrap: wrap; gap: 10px;">
                                 <span>利润率：<span id="recommendedProfitRate">-</span> %</span>
                                 <span>同行指数：<span id="recommendedIndex">-</span></span>
                             </div>
-                        </div>
-                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: bold;">20%利润:</span>
-                            <div style="display: flex; gap: 15px; align-items: center;">
-                                <div class="result-with-tooltip">
-                                    <span style="cursor: pointer; text-decoration: underline; color: #2196F3;" onclick="fillSettingPrice(parseFloat(document.getElementById('profit20Price').textContent))"><span id="profit20Price">-</span> CNY</span>
-                                    <div class="tooltip-container">
-                                        <div class="tooltip-icon">i</div>
-                                        <div class="tooltip-content">
-                                            <div><strong>计算公式:</strong></div>
-                                            <div>20%利润售价 = [成本价 × (1 + 0.2) + 运费 + 1.5] / 0.81</div>
-                                            <div>0.81 = 1 - 0.07 - 0.12</div>
-                                            <div><small>点击价格自动填充到设置售价</small></div>
-                                        </div>
-                                    </div>
+                            <div class="tooltip-container" style="margin-top: 2px;">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>基础推荐售价 = 转换后人民币价格 × 设置指数</div>
+                                    <div><small>点击价格自动填充到设置售价</small></div>
                                 </div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <div style="margin-bottom: 3px; font-weight: bold;">20%利润:</div>
+                            <div style="margin-bottom: 3px;">
+                                <span style="cursor: pointer; text-decoration: underline; color: #2196F3;" onclick="fillSettingPrice(parseFloat(document.getElementById('profit20Price').textContent))"><span id="profit20Price">-</span> CNY</span>
+                            </div>
+                            <div style="font-size: 12px; display: flex; flex-wrap: wrap; gap: 10px;">
                                 <span>利润率：<span id="profit20Rate">-</span> %</span>
                                 <span>同行指数：<span id="profit20Index">-</span></span>
                             </div>
-                        </div>
-                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: bold;">30%利润:</span>
-                            <div style="display: flex; gap: 15px; align-items: center;">
-                                <div class="result-with-tooltip">
-                                    <span style="cursor: pointer; text-decoration: underline; color: #2196F3;" onclick="fillSettingPrice(parseFloat(document.getElementById('profit30Price').textContent))"><span id="profit30Price">-</span> CNY</span>
-                                    <div class="tooltip-container">
-                                        <div class="tooltip-icon">i</div>
-                                        <div class="tooltip-content">
-                                            <div><strong>计算公式:</strong></div>
-                                            <div>30%利润售价 = [成本价 × (1 + 0.3) + 运费 + 1.5] / 0.81</div>
-                                            <div>0.81 = 1 - 0.07 - 0.12</div>
-                                            <div><small>点击价格自动填充到设置售价</small></div>
-                                        </div>
-                                    </div>
+                            <div class="tooltip-container" style="margin-top: 2px;">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>20%利润售价 = [成本价 × (1 + 0.2) + 运费 + 1.5] / 0.73</div>
+                                    <div>0.73 = 1 - 0.15 - 0.12</div>
+                                    <div><small>点击价格自动填充到设置售价</small></div>
                                 </div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <div style="margin-bottom: 3px; font-weight: bold;">30%利润:</div>
+                            <div style="margin-bottom: 3px;">
+                                <span style="cursor: pointer; text-decoration: underline; color: #2196F3;" onclick="fillSettingPrice(parseFloat(document.getElementById('profit30Price').textContent))"><span id="profit30Price">-</span> CNY</span>
+                            </div>
+                            <div style="font-size: 12px; display: flex; flex-wrap: wrap; gap: 10px;">
                                 <span>利润率：<span id="profit30Rate">-</span> %</span>
                                 <span>同行指数：<span id="profit30Index">-</span></span>
                             </div>
-                        </div>
-                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: bold;">目标利润:</span>
-                            <div style="display: flex; gap: 15px; align-items: center;">
-                                <div class="result-with-tooltip">
-                                    <span style="cursor: pointer; text-decoration: underline; color: #2196F3;" onclick="fillSettingPrice(parseFloat(document.getElementById('targetProfitPrice').textContent))"><span id="targetProfitPrice">-</span> CNY</span>
-                                    <div class="tooltip-container">
-                                        <div class="tooltip-icon">i</div>
-                                        <div class="tooltip-content">
-                                            <div><strong>计算公式:</strong></div>
-                                            <div>目标利润售价 = [成本价 × (1 + 目标利润率/100) + 运费 + 1.5] / 0.81</div>
-                                            <div>0.81 = 1 - 0.07 - 0.12</div>
-                                            <div><small>点击价格自动填充到设置售价</small></div>
-                                        </div>
-                                    </div>
+                            <div class="tooltip-container" style="margin-top: 2px;">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>30%利润售价 = [成本价 × (1 + 0.3) + 运费 + 1.5] / 0.73</div>
+                                    <div>0.73 = 1 - 0.15 - 0.12</div>
+                                    <div><small>点击价格自动填充到设置售价</small></div>
                                 </div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <div style="margin-bottom: 3px; font-weight: bold;">目标利润:</div>
+                            <div style="margin-bottom: 3px;">
+                                <span style="cursor: pointer; text-decoration: underline; color: #2196F3;" onclick="fillSettingPrice(parseFloat(document.getElementById('targetProfitPrice').textContent))"><span id="targetProfitPrice">-</span> CNY</span>
+                            </div>
+                            <div style="font-size: 12px; display: flex; flex-wrap: wrap; gap: 10px;">
                                 <span>利润率：<span id="targetProfitRateDisplay">-</span> %</span>
                                 <span>同行指数：<span id="targetProfitIndex">-</span></span>
                             </div>
-                        </div>
-                        <div style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-weight: bold;">保底利润:</span>
-                            <div style="display: flex; gap: 15px; align-items: center;">
-                                <div class="result-with-tooltip">
-                                    <span style="cursor: pointer; text-decoration: underline; color: #2196F3;" onclick="fillSettingPrice(parseFloat(document.getElementById('minProfitPrice').textContent))"><span id="minProfitPrice">-</span> CNY</span>
-                                    <div class="tooltip-container">
-                                        <div class="tooltip-icon">i</div>
-                                        <div class="tooltip-content">
-                                            <div><strong>计算公式:</strong></div>
-                                            <div>保底利润售价 = (成本价 + 保底利润 + 运费 + 1.5) / 0.81</div>
-                                            <div>0.81 = 1 - 0.07 - 0.12</div>
-                                            <div><small>点击价格自动填充到设置售价</small></div>
-                                        </div>
-                                    </div>
+                            <div class="tooltip-container" style="margin-top: 2px;">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>目标利润售价 = [成本价 × (1 + 目标利润率/100) + 运费 + 1.5] / 0.73</div>
+                                    <div>0.73 = 1 - 0.15 - 0.12</div>
+                                    <div><small>点击价格自动填充到设置售价</small></div>
                                 </div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <div style="margin-bottom: 3px; font-weight: bold;">保底利润:</div>
+                            <div style="margin-bottom: 3px;">
+                                <span style="cursor: pointer; text-decoration: underline; color: #2196F3;" onclick="fillSettingPrice(parseFloat(document.getElementById('minProfitPrice').textContent))"><span id="minProfitPrice">-</span> CNY</span>
+                            </div>
+                            <div style="font-size: 12px; display: flex; flex-wrap: wrap; gap: 10px;">
                                 <span>利润率：<span id="minProfitRate">-</span> %</span>
                                 <span>同行指数：<span id="minProfitIndex">-</span></span>
+                            </div>
+                            <div class="tooltip-container" style="margin-top: 2px;">
+                                <div class="tooltip-icon">i</div>
+                                <div class="tooltip-content">
+                                    <div><strong>计算公式:</strong></div>
+                                    <div>保底利润售价 = (成本价 + 保底利润 + 运费 + 1.5) / 0.73</div>
+                                    <div>0.73 = 1 - 0.15 - 0.12</div>
+                                    <div><small>点击价格自动填充到设置售价</small></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -557,6 +647,10 @@
                     return 1.9 + weight * 0.067;
                 case 'cel_standard_budget':
                     return 23 + weight * 0.025;
+                case 'guoo_economy_extra_small':
+                    return 2.6 + weight * 0.025;
+                case 'guoo_standard_extra_small':
+                    return 3.04 + weight * 0.035;
                 default:
                     return 0;
             }
@@ -565,7 +659,7 @@
         // 计算利润20-30%的推荐售价
         function calculateProfitPrice(costPrice, shippingFee, profitRate) {
             // 获取用户设置的参数值
-            const platformCommission = parseFloat(document.getElementById('platformCommission').value) || 0.07;
+            const platformCommission = parseFloat(document.getElementById('platformCommission').value) || 0.15;
             const transferFee = parseFloat(document.getElementById('transferFee').value) || 1.5;
             const otherFee = parseFloat(document.getElementById('otherFee').value) || 0.12;
             const feeRatio = 1 - platformCommission - otherFee;
@@ -581,7 +675,7 @@
         // 计算保底利润推荐售价
         function calculateMinProfitPrice(costPrice, shippingFee, minProfit) {
             // 获取用户设置的参数值
-            const platformCommission = parseFloat(document.getElementById('platformCommission').value) || 0.07;
+            const platformCommission = parseFloat(document.getElementById('platformCommission').value) || 0.15;
             const transferFee = parseFloat(document.getElementById('transferFee').value) || 1.5;
             const otherFee = parseFloat(document.getElementById('otherFee').value) || 0.12;
             const feeRatio = 1 - platformCommission - otherFee;
@@ -597,7 +691,7 @@
         // 计算利润率
         function calculateProfitRate(sellingPrice, costPrice, shippingFee) {
             // 获取用户设置的参数值
-            const platformCommission = parseFloat(document.getElementById('platformCommission').value) || 0.07;
+            const platformCommission = parseFloat(document.getElementById('platformCommission').value) || 0.15;
             const transferFee = parseFloat(document.getElementById('transferFee').value) || 1.5;
             const otherFee = parseFloat(document.getElementById('otherFee').value) || 0.12;
             // 结算价格 = P - platformCommission*P - transferFee - 运费 - otherFee*P
@@ -663,7 +757,7 @@
                             <div style="font-size: 12px; color: #999;">${item.timestamp}</div>
                             <button onclick="event.stopPropagation(); deleteHistoryItem(${item.id})" style="padding: 2px 8px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 10px;">删除</button>
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 5px; font-size: 12px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 5px; font-size: 12px;">
                             <div><strong>成本价:</strong> ${item.inputs.costPrice.toFixed(2)} CNY</div>
                             <div><strong>克重:</strong> ${item.inputs.weight} g</div>
                             <div><strong>同行价:</strong> ${item.inputs.competitorPrice.toFixed(2)} RUB</div>
@@ -749,7 +843,7 @@
             const shippingFee = calculateShippingFee(logistics, weight);
             
             // 计算结算价格
-            const platformCommission = parseFloat(document.getElementById('platformCommission').value) || 0.07;
+            const platformCommission = parseFloat(document.getElementById('platformCommission').value) || 0.15;
             const transferFee = parseFloat(document.getElementById('transferFee').value) || 1.5;
             const otherFee = parseFloat(document.getElementById('otherFee').value) || 0.12;
             const settlementPrice = settingPrice - (settingPrice * platformCommission) - transferFee - shippingFee - (settingPrice * otherFee);
@@ -837,7 +931,7 @@
             const shippingFee = calculateShippingFee(logistics, weight);
             
             // 计算结算价格
-            const platformCommission = parseFloat(document.getElementById('platformCommission').value) || 0.07;
+            const platformCommission = parseFloat(document.getElementById('platformCommission').value) || 0.15;
             const transferFee = parseFloat(document.getElementById('transferFee').value) || 1.5;
             const otherFee = parseFloat(document.getElementById('otherFee').value) || 0.12;
             const settlementPrice = settingPrice - (settingPrice * platformCommission) - transferFee - shippingFee - (settingPrice * otherFee);
