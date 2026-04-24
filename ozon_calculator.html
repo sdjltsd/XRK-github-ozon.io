@@ -320,8 +320,9 @@
                         <option value="cel_economy_extra_small">CEL Economy Extra Small</option>
                         <option value="china_post_pudo_standard">China Post to PUDO Standard</option>
                         <option value="cel_standard_budget">CEL Standard Budget</option>
-                        <option value="guoo_economy_extra_small">GUOO Economy Extra Small</option>
-                        <option value="guoo_standard_extra_small">GUOO Standard Extra Small</option>
+                        <option value="guoo_economy_small">GUOO Economy Small</option>
+                        <option value="guoo_standard_small">GUOO Standard Small</option>
+                        <option value="epacket_economy_track">ePacket Economy Track</option>
                     </select>
                 </div>
                 
@@ -414,8 +415,9 @@
                                     <div>CEL Economy Extra Small: 3 + 克重 × 0.025</div>
                                     <div>China Post to PUDO Standard: 1.9 + 克重 × 0.067</div>
                                     <div>CEL Standard Budget: 23 + 克重 × 0.025</div>
-                                    <div>GUOO Economy Extra Small: 2.6 + 克重 × 0.025</div>
-                                    <div>GUOO Standard Extra Small: 3.04 + 克重 × 0.035</div>
+                                    <div>GUOO Economy Small: 16.64 + 克重 × 0.026</div>
+                                    <div>GUOO Standard Small: 16.64 + 克重 × 0.0364</div>
+                                    <div>ePacket Economy Track: 15 + 克重 × 0.03475</div>
                                 </div>
                             </div>
                         </div>
@@ -610,7 +612,6 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <div class="section-title" style="margin: 0;">历史记录</div>
                         <div style="display: flex; gap: 10px;">
-                            <button onclick="toggleHistory()" style="padding: 5px 10px; background-color: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">收起</button>
                             <button onclick="clearHistory()" style="padding: 5px 10px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">清空历史</button>
                         </div>
                     </div>
@@ -647,10 +648,12 @@
                     return 1.9 + weight * 0.067;
                 case 'cel_standard_budget':
                     return 23 + weight * 0.025;
-                case 'guoo_economy_extra_small':
-                    return 2.6 + weight * 0.025;
-                case 'guoo_standard_extra_small':
-                    return 3.04 + weight * 0.035;
+                case 'guoo_economy_small':
+                    return Math.max(weight, 1) * 0.026 + 16.64;
+                case 'guoo_standard_small':
+                    return Math.max(weight, 1) * 0.0364 + 16.64;
+                case 'epacket_economy_track':
+                    return Math.max(weight, 1) * 0.03475 + 15;
                 default:
                     return 0;
             }
@@ -1009,23 +1012,6 @@
             document.getElementById('targetProfitIndex').textContent = targetProfitIndex.toFixed(4);
             document.getElementById('minProfitIndex').textContent = minProfitIndex.toFixed(4);
         }
-        
-        // 切换历史记录的显示/隐藏
-        function toggleHistory() {
-            const historyList = document.getElementById('historyList');
-            const toggleButton = event.target;
-            
-            if (historyList.style.display === 'none') {
-                // 展开历史记录
-                historyList.style.display = 'block';
-                toggleButton.textContent = '收起';
-            } else {
-                // 收起历史记录
-                historyList.style.display = 'none';
-                toggleButton.textContent = '展开';
-            }
-        }
-        
         // 填充设置售价
         function fillSettingPrice(price) {
             document.getElementById('settingPrice').value = price.toFixed(2);
